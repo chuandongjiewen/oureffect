@@ -1,5 +1,5 @@
 window.onload = function(){
-	var tag = getElementsByClassName('skitter');
+	var tag = getElementsByClassName('skitter')[0];
 
 }
 
@@ -12,4 +12,8 @@ function CreateBlock(){
 	img.style.left = '-100px';
 	parent.appendChild(img);
 	return parent;
+}
+
+function debug(infor){
+	console.log(infor);
 }

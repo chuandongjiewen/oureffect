@@ -73,4 +73,119 @@ function getNextElement(node)
     if (node.nextSibling) return getNextElement(node.nextSibling);
     return null;
 }
+
+/*能获取任何属性*/
+function getStyle(obj,attr){
+	//IE
+	if(obj.currentStyle){
+		return obj.currentStyle[attr];
+	}
+	//其他
+	else{
+		return getComputedStyle(obj,false)[attr];
+	} 
+}
+
+/*改变元素透明度、位置、大小,target是个json*/
+function css(elem,target){
+	for(attr in target){
+		if(attr=='opacity') {
+			elem.style['opacity'] = target[attr];
+			elem.style.filter = 'alpha(opacity=' + target[attr]*100 + ')'; 
+		}
+		else{
+			elem.style[attr] = target[attr];
+		}
+	}
+}
+
+/*缓冲运动框架*/
+function startMove(obj,target,iTime,fncallback){
+
+	var iInterval=45;
+	var iEndTime=(new Date()).getTime()+iTime;
+	var iTimes=Math.ceil(iTime/iInterval);
+	var oSpeed={};
+
+	if(typeof obj.timer=='undefined') obj.timer=null;
+	if(obj.timer) clearTimeout(obj.timer);
+
+	for(attr in target){
+		oSpeed[attr] = (target[attr] - obj.style[attr])/iTimeS;
+	}
+
+	obj.timer=setInterval
+	(
+		function ()
+		{
+			doMove(obj, target, oSpeed, iEndTime, fncallback);
+		}, iInterval
+	);
 	
+}
+
+function doMove(obj, oTarget, oSpeed, iEndTime, fnCallBackEnd)
+{
+	var iNow=(new Date()).getTime();
+	
+	if(iNow>=iEndTime)//过了结束时间
+	{
+		clearInterval(obj.timer);
+		obj.timer=null;
+		
+		for(key in oTarget)
+		{
+			obj[key]=oTarget[key];
+
+			switch(key)
+			{
+				case 'alpha':
+					obj.style.opacity=oTarget[key]/100;
+					obj.style.filter="alpha(opacity:"+oTarget[key]+")";
+					break;
+				case 'zIndex':
+					obj.style.zIndex=oTarget[key];
+					break;
+				case 'width':
+				case 'height':
+					obj.getElementsByTagName('img')[0].style[key]=oTarget[key]+'px';
+					break;
+				default:
+					obj.style[key]=oTarget[key]+'px';
+					break;
+			}
+		}
+		
+		if(fnCallBackEnd)
+		{
+			fnCallBackEnd();
+		}
+	}
+	else
+	{
+		for(key in oTarget)
+		{
+			obj[key]+=oSpeed[key];
+			
+			switch(key)
+			{
+				case 'alpha':
+					obj.style.opacity=obj[key]/100;
+					obj.style.filter="alpha(opacity:"+obj[key]+")";
+					break;
+				case 'zIndex':
+					//obj.style.zIndex=obj[key];
+					obj.style.zIndex=oTarget[key];
+					break;
+				case 'width':
+				case 'height':
+					obj.getElementsByTagName('img')[0].style[key]=obj[key]+'px';
+					break;
+				default:
+					obj.style[key]=obj[key]+'px';
+					break;
+			}
+		}
+	}
+}
+
