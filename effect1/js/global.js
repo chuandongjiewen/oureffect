@@ -100,7 +100,7 @@ function css(elem,target){
 }
 
 /*缓冲运动框架*/
-function startMove(obj,target,iTime,fncallback){
+function startMove(obj,target,iTime,fnCallBack){
 
 	var iInterval=45;
 	var iEndTime=(new Date()).getTime()+iTime;
@@ -118,13 +118,12 @@ function startMove(obj,target,iTime,fncallback){
 	(
 		function ()
 		{
-			doMove(obj, target, oSpeed, iEndTime, fncallback);
+			doMove(obj, oParams, oSpeed, iEndTime, fnCallBack);
 		}, iInterval
 	);
-	
 }
 
-function doMove(obj, oTarget, oSpeed, iEndTime, fnCallBackEnd)
+function doMove(obj, oTarget, oSpeed, iEndTime, fnCallBack)
 {
 	var iNow=(new Date()).getTime();
 	
@@ -136,7 +135,7 @@ function doMove(obj, oTarget, oSpeed, iEndTime, fnCallBackEnd)
 		for(key in oTarget)
 		{
 			obj[key]=oTarget[key];
-
+//			alert('set '+key+'='+oTarget[key]);
 			switch(key)
 			{
 				case 'alpha':
