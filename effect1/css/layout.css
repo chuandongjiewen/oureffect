@@ -1,7 +1,32 @@
 body{
 	margin: 0;
 }
-
-#container{
-	width: 530px;
+.wrap{
+	width: 100%;
+	height: 800px;
+	margin-left: 180px;
+}
+.container{
+	width: 900px;
+	height: 510px;
+	margin: 100 auto;
+	background: #ccc;
+	position: absolute;
+}
+.skitter{
+	width: 900px;
+	height: 510px;
+}
+.image{
+	position: absolute;
+}
+.box_clone{
+	height: 510px;
+	width: 100px;
+	overflow: hidden;
+	position: absolute;
+	display: inline;
+}
+.box_clone img{
+	position: absolute;
 }
