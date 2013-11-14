@@ -2,7 +2,8 @@ window.onload = function(){
 	var tag = getElementsByClassName('skitter')[0];
 	
 	var effect1 = new EffectOne();
-	effect1.fadeOut(tag);
+	effect1.fadeIn(tag);
+	// effect1.fadeOut(tag);
 }
 
 

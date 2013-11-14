@@ -20,6 +20,7 @@ var BaseEffect = Class.create();
 BaseEffect.prototype = {
 	initialize: function(param){
 		this.stripNum = 10;
+		this.callback = function(){};
 	},
 	doMove: function(list, curIndex, param){
 		var elem = list[curIndex];
@@ -29,6 +30,7 @@ BaseEffect.prototype = {
 		var timer = setTimeout(function(){
 			if (curIndex == _this.stripNum) {
 				debug(curIndex);
+				_this.callback();
 				clearTimeout(timer);
 			}else{
 				_this.doMove(list,curIndex, param);
@@ -45,9 +47,13 @@ Object.extend(EffectOne.prototype, BaseEffect.prototype);
 Object.extend(EffectOne.prototype, {
 	initialize: function(param){
 		this.stripNum = 10;
+		this.callback = function(){};
 	},
 	
-	fadeIn: function(container){
+	fadeIn: function(container,callback){
+		if(callback !== undefined){
+			this.callback = callback;
+		}
 		var num = this.stripNum;
 		var cWidth = parseInt(css(container,"width"));
 		var cHeight = parseInt(css(container,"height"));
@@ -55,12 +61,20 @@ Object.extend(EffectOne.prototype, {
 		var fragment = document.createDocumentFragment();
 		var list = [];
 		for(var i=0; i<num;i++){
-			var elem = createBlock({left:i*stripWidth,height:0});
+			var elem = createBlock({
+				opacity:1,
+				top: -cHeight,
+				left: i*stripWidth,
+				width:stripWidth,
+				height:cHeight,
+				backgroundPosition: (num - i)*stripWidth+' '+(-1*cHeight),
+				backgroundImage: 'url(images/1_3.jpg)'
+			});
 			list.push(elem);
 			fragment.appendChild(elem);
 		}
 		container.appendChild(fragment);
-		this.doMove(list, 0, {height: cHeight});
+		this.doMove(list, 0, {top: 0});
 	},
 
 	fadeOut: function(container){
