@@ -98,7 +98,7 @@ function css(elem,target){
 		}
 	}else{//获取属性
 		if(elem.currentStyle){
-			switch(attr){
+			switch(target){
 				case 'alpha':
 				case 'opacity':
 					return elem.currentStyle['opacity']*100;
@@ -107,7 +107,7 @@ function css(elem,target){
 					return elem.currentStyle[target];
 			};
 		}else{//其他
-			switch(attr){
+			switch(target){
 				case 'alpha':
 				case 'opacity':
 					return getComputedStyle(elem,false)['opacity']*100;
