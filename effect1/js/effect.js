@@ -1,6 +1,5 @@
 window.onload = function(){
 	var tag = getElementsByClassName('skitter')[0];
-<<<<<<< HEAD
 	var list = [];
 	for(var i=0; i<9;i++){
 		var elem = createBlock({left:i*100});
@@ -9,8 +8,6 @@ window.onload = function(){
 	}
 	doMovement(list,0);
 }
-=======
->>>>>>> ac44ad555a40e5adc93eaacea848aa66bc6a8759
 
 function doMovement(list,curIndex){
 	var tag = getElementsByClassName('skitter')[0];
