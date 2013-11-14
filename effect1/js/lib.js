@@ -48,6 +48,10 @@ Object.extend(EffectOne.prototype, {
 	initialize: function(param){
 		this.stripNum = 10;
 		this.callback = function(){};
+		this.row = 5;
+		this.col = 10;
+		this.stripWidth = 0;
+		this.stripHeight = 0;
 	},
 	
 	fadeIn: function(container,callback){
@@ -102,8 +106,71 @@ Object.extend(EffectOne.prototype, {
 		this.doMove(list, 0, {left: 0});
 		// this.doMove(imgList, 0, {left: 0});
 	},
-	test: function(){
-		debug('EffectOne')
+	test: function(container){
+		var row = this.row,
+			col = this.col;
+		var cWidth = parseInt(css(container,"width")),
+			cHeight = parseInt(css(container,"height"));
+		var stripWidth = Math.ceil(cWidth/col);
+			stripHeight = Math.ceil(cHeight/row);
+		this.stripWidth = stripWidth;
+		this.stripHeight = stripHeight;
+		var fragment = document.createDocumentFragment();
+		var list = [];
+		for(var i=0; i<col; i++){//列
+			var tmp = [];
+			for(var j=0; j<row; j++){//行
+				var elem = createBlock({
+					opacity:100,
+					top:-j*stripHeight,
+					left: -i*stripWidth,
+					width:stripHeight,
+					height:stripHeight,
+					backgroundPosition: (col-i)*stripWidth+' '+ (row - i)*stripHeight,
+					backgroundImage: 'url(images/1_3.jpg)'
+				});
+				tmp.push(elem);
+				fragment.appendChild(elem);
+			}
+			list.push(tmp);
+		}
+		// debug(list[0][0])
+		container.appendChild(fragment);
+		// for(var i=0; i<col;i++){
+		// 	for(var j=0; j<row;j++){
+		// 		debug(list[i][j]);
+		// 	}
+		// }
+		this.newmove(list,0,0,{left:0,top:0});
+	},
+
+	newmove: function(list,rowId,colId,param){
+		debug(rowId+':'+colId)
+		var elem = list[rowId][colId];
+		debug(elem)
+		bufferMove(elem,param,10,function(){});
+		
+		colId ++;
+		if(colId >= this.col){
+			colId = 0;
+			rowId ++;
+		}
+		
+		var _this = this;
+		var timer = setTimeout(function(){
+			if (rowId >= _this.row) {
+				_this.callback();
+				clearTimeout(timer);
+			}else{
+				(function(param){
+					param.left = _this.stripWidth*colId;
+					param.top = _this.stripHeight*rowId;
+					_this.newmove(list,rowId,colId,param)
+					// debug(param)
+				})(param)
+				
+			}
+		},100);
 	}
 
 
