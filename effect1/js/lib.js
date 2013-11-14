@@ -25,9 +25,9 @@ BaseEffect.prototype = {
 	doMove: function(list, curIndex, param){
 		var elem = list[curIndex];
 		curIndex ++;
-		//flexibleMove(elem, param, 16,function(){});
-		//bufferMove(elem, param, 10,function(){});
-		animate(elem, param, 300,function(){});
+		flexibleMove(elem, param, 16,function(){});
+		// bufferMove(elem, param, 10,function(){});
+		// animate(elem, param, 300,function(){});
 		var _this = this;
 		var timer = setTimeout(function(){
 			if (curIndex == _this.stripNum) {
@@ -116,14 +116,14 @@ Object.extend(EffectOne.prototype, {
 		this.stripHeight = stripHeight;
 		var fragment = document.createDocumentFragment();
 		var list = [];
-		for(var i=0; i<col; i++){//列
+		for(var i=0; i<row; i++){//行
 			var tmp = [];
-			for(var j=0; j<row; j++){//行
+			for(var j=0; j<col; j++){//列
 				var elem = createBlock({
 					opacity:100,
 					top:-j*stripHeight,
 					left: -i*stripWidth,
-					width:stripHeight,
+					width:stripWidth,
 					height:stripHeight,
 					backgroundPosition: (col-i)*stripWidth+' '+ (row - i)*stripHeight,
 					backgroundImage: 'url(images/1_3.jpg)'
@@ -135,39 +135,35 @@ Object.extend(EffectOne.prototype, {
 		}
 		// debug(list[0][0])
 		container.appendChild(fragment);
-		for(var i=0; i<col;i++){
-			for(var j=0; j<row;j++){
-				debug(list[i][j]);
-			}
-		}
-		// this.newmove(list,0,0,{left:0,top:0});
+		// for(var i=0; i<col;i++){
+		// 	for(var j=0; j<row;j++){
+		// 		debug(list[i][j]);
+		// 	}
+		// }
+		// debug(list[4][5]);
+		this.newmove(list,0,0,{left:0,top:0});
 	},
 
 	newmove: function(list,rowId,colId,param){
-		debug(rowId+':'+colId)
+		// debug(rowId+':'+colId)
 		var elem = list[rowId][colId];
-		debug(elem)
 		bufferMove(elem,param,10,function(){});
-		
 		colId ++;
 		if(colId >= this.col){
 			colId = 0;
 			rowId ++;
 		}
-		
 		var _this = this;
 		var timer = setTimeout(function(){
 			if (rowId >= _this.row) {
 				_this.callback();
 				clearTimeout(timer);
 			}else{
-				(function(param){
-					param.left = _this.stripWidth*colId;
-					param.top = _this.stripHeight*rowId;
-					_this.newmove(list,rowId,colId,param)
-					// debug(param)
-				})(param)
-				
+				var p = {
+					left: _this.stripWidth*colId,
+					top: _this.stripHeight*rowId
+				}
+				_this.newmove(list,rowId,colId,p)
 			}
 		},100);
 	}
