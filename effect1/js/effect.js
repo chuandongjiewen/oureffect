@@ -1,40 +1,8 @@
 window.onload = function(){
 	var tag = getElementsByClassName('skitter')[0];
-	var list = [];
-	for(var i=0; i<9;i++){
-		var elem = createBlock({left:i*100});
-		list.push(elem);
-		tag.appendChild(elem);
-	}
-
-	var box = getElementsByClassName('box_clone');
-	var len = box.length;
-	for(var i=0;i<len;i++){
-		(function(i){
-			startMove(box[i],{'height':'510','width':'100','opacity':'1'},1000);		
-		})(i);
-	}
-}
-
-function doMovement(list,curIndex){
-	var elem = list[curIndex];
-	curIndex ++;
-	startMove(
-		elem,
-		{
-			height:510,
-		},
-		200
-	);
-	var timer = setTimeout(function(){
-		if (curIndex == 9) {
-			debug(curIndex);
-			clearTimeout(timer);
-		}else{
-			doMovement(list,curIndex);
-		}
-	},100);
-
+	
+	var effect1 = new EffectOne();
+	effect1.fadeOut(tag);
 }
 
 

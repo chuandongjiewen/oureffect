@@ -24,7 +24,7 @@ BaseEffect.prototype = {
 	doMove: function(list, curIndex, param){
 		var elem = list[curIndex];
 		curIndex ++;
-		startMove(elem, param, 500);
+		bufferMove(elem, param, 10,function(){});
 		var _this = this;
 		var timer = setTimeout(function(){
 			if (curIndex == _this.stripNum) {
@@ -72,6 +72,7 @@ Object.extend(EffectOne.prototype, {
 		var list = [];
 		for(var i=0; i<num;i++){
 			var elem = createBlock({
+				opacity:1,
 				top:i*stripHeight,
 				left: -cWidth,
 				width:cWidth,
