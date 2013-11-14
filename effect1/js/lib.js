@@ -125,7 +125,7 @@ Object.extend(EffectOne.prototype, {
 					left: -i*stripWidth,
 					width:stripWidth,
 					height:stripHeight,
-					backgroundPosition: (col-i)*stripWidth+' '+ (row - i)*stripHeight,
+					backgroundPosition: (col-j)*stripWidth+' '+ (row - i)*stripHeight,
 					backgroundImage: 'url(images/1_3.jpg)'
 				});
 				tmp.push(elem);
