@@ -82,8 +82,9 @@ function css(elem,target){
 		for(attr in target){
 			switch(attr){
 				case 'alpha':
-					elem.style.opacity=target[attr];
-					elem.style.filter="alpha(opacity:"+target[attr]*100+")";
+				case 'opacity':
+					elem.style.opacity=target[attr]/100;
+					elem.style.filter="alpha(opacity:"+target[attr]+")";
 					break;
 				case 'width':
 				case 'height':
@@ -97,9 +98,23 @@ function css(elem,target){
 		}
 	}else{//获取属性
 		if(elem.currentStyle){
-			return elem.currentStyle[target];
+			switch(attr){
+				case 'alpha':
+				case 'opacity':
+					return elem.currentStyle['opacity']*100;
+				break;
+				default:
+					return elem.currentStyle[target];
+			};
 		}else{//其他
-			return getComputedStyle(elem,false)[target];
+			switch(attr){
+				case 'alpha':
+				case 'opacity':
+					return getComputedStyle(elem,false)['opacity']*100;
+				break;
+				default:
+					return getComputedStyle(elem,false)[target];
+			}
 		} 
 	}
 	
@@ -107,7 +122,7 @@ function css(elem,target){
 
 
 /*匀速运动*/
-function animate(obj,target,iTime,fnCallBack){
+function animate(obj,oTarget,iTime,fnCallBack){
 	var iInterval = 10;
 	var iEndTime = (new Date()).getTime()+iTime;
 	var iTimes = Math.ceil(iTime/iInterval);
@@ -115,51 +130,46 @@ function animate(obj,target,iTime,fnCallBack){
 	var oTmp = {};
 	if(typeof obj.timer=='undefined') obj.timer = null;
 	if(obj.timer) clearTimeout(obj.timer);
-	for(attr in target){
-		if(attr=='opacity') {
-			target['opacity'] = target['opacity']*100;
-		}
+	for(attr in oTarget){
 		/*匀速运动*/
-		oSpeed[attr] = (target[attr] - oTmp[attr])/iTimes;
+		oTmp[attr] = parseFloat(css(obj,attr));
+		oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
+		oSpeed[attr] = (oTarget[attr] - oTmp[attr])/iTimes;
 		oSpeed[attr] > 0 ? Math.ceil(oSpeed[attr]):Math.floor(oSpeed[attr]);
 	}
 	obj.timer=setInterval
 	(
-
 		/*保存元素当前属性*/
 		function (){
 			for(attr in oTarget){
 				oTmp[attr] = parseFloat(css(obj,attr));
 				oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
 			}
-			doMove(oTmp,obj, target, oSpeed, iEndTime, fnCallBack);
+			doMove(oTmp,obj, oTarget, oSpeed, iEndTime, fnCallBack);
 		}, 
 		iInterval
 	);
 }
-
-/*缓冲运动*/
-function bufferMove(obj,oTarget,coefficient,fnCallBack){
-	var iInterval = 10;
-	var oSpeed = {};
-	var oTmp = {};
-	if(typeof obj.timer=='undefined') obj.timer = null;
-	if(obj.timer) clearTimeout(obj.timer);
-	for(attr in oTarget){
-		if(attr=='opacity') {
-			oTarget['opacity'] = oTarget['opacity']*100;
-		}
-		oTmp[attr] = css(obj,oTarget[attr]);
+function doMove(oTmp,obj, oTarget, oSpeed, iEndTime, fnCallBack)
+{
+	var bStop = false;
+	var iNow=(new Date()).getTime();
+	if(iNow>=iEndTime) bStop = true;//过了结束时间
+	if(bStop)
+	{
+		clearInterval(obj.timer);
+		obj.timer=null;		
+		css(obj,oTarget);
+		if(fnCallBack)	fnCallBack();
 	}
-	obj.timer=setInterval(function(){
-		for(attr in oTarget){
-			oTmp[attr] = parseFloat(css(obj,attr));
-			oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
-			oSpeed[attr] = (oTarget[attr] - oTmp[attr])/coefficient;
-			oSpeed[attr] = oSpeed[attr] > 0 ? Math.ceil(oSpeed[attr]):Math.floor(oSpeed[attr]);	
-		}
-		bufferdoMove(oTmp,obj, oTarget, oSpeed, fnCallBack);
-	},iInterval)
+	else
+	{
+		for(attr in oSpeed){
+			oTmp[attr]+=oSpeed[attr];
+		}	
+		css(obj,oTmp);
+	}
+	console.log(css(obj,'opacity'));
 }
 
 /*弹性运动*/
@@ -170,9 +180,6 @@ function flexibleMove(obj,oTarget,coefficient,fnCallBack){
 	if(typeof obj.timer=='undefined') obj.timer = null;
 	if(obj.timer) clearTimeout(obj.timer);
 	for(attr in oTarget){
-		if(attr=='opacity') {
-			oTarget['opacity'] = oTarget['opacity']*100;
-		}
 		oTmp[attr] = css(obj,oTarget[attr]);
 	}
 	obj.timer=setInterval(function(){
@@ -210,27 +217,6 @@ function bufferdoMove(oTmp,obj, oTarget, oSpeed, fnCallBack)
 	}
 }
 
-function doMove(oTmp,obj, oTarget, oSpeed, iEndTime, fnCallBack)
-{
-	var bStop = false;
-	var iNow=(new Date()).getTime();
-
-	if(iNow>=iEndTime) bStop = true;//过了结束时间
-	if(bStop)
-	{
-		clearInterval(obj.timer);
-		obj.timer=null;		
-		css(obj,oTarget);
-		if(fnCallBack)	fnCallBack();
-	}
-	else
-	{
-		for(attr in oSpeed){
-			oTmp[attr]+=oSpeed[attr];
-		}	
-		css(obj,oTmp);
-	}
-}
 
 
 

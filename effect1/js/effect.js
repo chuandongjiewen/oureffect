@@ -11,7 +11,7 @@ window.onload = function(){
 	var len = box.length;
 	for(var i=0;i<len;i++){
 		(function(i){
-			startMove(box[i],{'height':'510','width':'100','opacity':'1'},1000);		
+			animate(box[i],{'height':'510','width':'100','opacity':'100'},1000);		
 		})(i);
 	}
 }
