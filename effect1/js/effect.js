@@ -1,6 +1,13 @@
 window.onload = function(){
 	var tag = getElementsByClassName('skitter')[0];
-
+	var box = getElementsByClassName('box_clone');
+	var len = box.length;
+	for(var i=0;i<len;i++){
+		(function(i){
+			startMove(box[i],{'height':'510'},1000);
+		})(i);
+	}
+	
 }
 
 function CreateBlock(){

@@ -21,7 +21,7 @@ body{
 	position: absolute;
 }
 .box_clone{
-	height: 510px;
+	height: 0px;
 	width: 100px;
 	overflow: hidden;
 	position: absolute;

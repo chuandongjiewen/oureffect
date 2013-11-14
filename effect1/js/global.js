@@ -86,105 +86,87 @@ function getStyle(obj,attr){
 	} 
 }
 
+
 /*改变元素透明度、位置、大小,target是个json*/
 function css(elem,target){
 	for(attr in target){
-		if(attr=='opacity') {
-			elem.style['opacity'] = target[attr];
-			elem.style.filter = 'alpha(opacity=' + target[attr]*100 + ')'; 
+		switch(attr)
+		{
+			case 'alpha':
+				elem.style.opacity=target[attr];
+				elem.style.filter="alpha(opacity:"+target[attr]*100+")";
+				break;
+			case 'zIndex':
+				elem.style.zIndex=target[attr];
+				break;
+			default:
+				elem.style[attr]=target[attr]+'px';
+				break;
 		}
-		else{
-			elem.style[attr] = target[attr];
-		}
+		//console.log('2:'+target[attr]);
 	}
 }
 
-/*缓冲运动框架*/
+/*缓冲运动，匀速运动框架*/
 function startMove(obj,target,iTime,fnCallBack){
-
-	var iInterval=45;
-	var iEndTime=(new Date()).getTime()+iTime;
-	var iTimes=Math.ceil(iTime/iInterval);
-	var oSpeed={};
-
+	var iInterval = 10;
+	var iEndTime = (new Date()).getTime()+iTime;
+	var iTimes = Math.ceil(iTime/iInterval);
+	var oSpeed = {};
+	var oTmp = {};
 	if(typeof obj.timer=='undefined') obj.timer=null;
 	if(obj.timer) clearTimeout(obj.timer);
 
+
 	for(attr in target){
-		oSpeed[attr] = (target[attr] - obj.style[attr])/iTimeS;
+		oTmp[attr] = parseInt(getStyle(obj,attr));
+		console.log("3:"+oTmp[attr]);
+	}
+
+
+	for(attr in target){
+		/*匀速运动*/
+		oSpeed[attr] = (target[attr] - oTmp[attr])/iTimes;
+		console.log('1:'+oTmp[attr]+oSpeed[attr]);
+		/*缓冲运动*/
+		//oSpeed[attr] = Math.ceil((target[attr] - oTmp[attr])/8);
 	}
 
 	obj.timer=setInterval
 	(
+		/*保存元素当前属性*/
 		function ()
 		{
-			doMove(obj, oParams, oSpeed, iEndTime, fnCallBack);
+			for(attr in target){
+				oTmp[attr] = parseInt(getStyle(obj,attr));
+			}
+			doMove(oTmp,obj, target, oSpeed, iEndTime, fnCallBack);
 		}, iInterval
 	);
 }
 
-function doMove(obj, oTarget, oSpeed, iEndTime, fnCallBack)
+function doMove(oTmp,obj, oTarget, oSpeed, iEndTime, fnCallBack)
 {
 	var iNow=(new Date()).getTime();
-	
 	if(iNow>=iEndTime)//过了结束时间
 	{
 		clearInterval(obj.timer);
-		obj.timer=null;
+		obj.timer=null;		
+		css(obj,oTarget);
 		
-		for(key in oTarget)
+		if(fnCallBack)
 		{
-			obj[key]=oTarget[key];
-//			alert('set '+key+'='+oTarget[key]);
-			switch(key)
-			{
-				case 'alpha':
-					obj.style.opacity=oTarget[key]/100;
-					obj.style.filter="alpha(opacity:"+oTarget[key]+")";
-					break;
-				case 'zIndex':
-					obj.style.zIndex=oTarget[key];
-					break;
-				case 'width':
-				case 'height':
-					obj.getElementsByTagName('img')[0].style[key]=oTarget[key]+'px';
-					break;
-				default:
-					obj.style[key]=oTarget[key]+'px';
-					break;
-			}
-		}
-		
-		if(fnCallBackEnd)
-		{
-			fnCallBackEnd();
+			fnCallBack();
 		}
 	}
 	else
 	{
-		for(key in oTarget)
-		{
-			obj[key]+=oSpeed[key];
-			
-			switch(key)
-			{
-				case 'alpha':
-					obj.style.opacity=obj[key]/100;
-					obj.style.filter="alpha(opacity:"+obj[key]+")";
-					break;
-				case 'zIndex':
-					//obj.style.zIndex=obj[key];
-					obj.style.zIndex=oTarget[key];
-					break;
-				case 'width':
-				case 'height':
-					obj.getElementsByTagName('img')[0].style[key]=obj[key]+'px';
-					break;
-				default:
-					obj.style[key]=obj[key]+'px';
-					break;
-			}
-		}
+		// console.log(oTmp);
+		for(attr in oSpeed){
+			// console.log("4:"+oTmp[attr]);
+			oTmp[attr]+=oSpeed[attr];
+		}	
+		css(obj,oTmp);
 	}
 }
 
