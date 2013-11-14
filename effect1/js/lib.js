@@ -25,7 +25,9 @@ BaseEffect.prototype = {
 	doMove: function(list, curIndex, param){
 		var elem = list[curIndex];
 		curIndex ++;
-		bufferMove(elem, param, 10,function(){});
+		//flexibleMove(elem, param, 16,function(){});
+		//bufferMove(elem, param, 10,function(){});
+		animate(elem, param, 300,function(){});
 		var _this = this;
 		var timer = setTimeout(function(){
 			if (curIndex == _this.stripNum) {
@@ -49,7 +51,6 @@ Object.extend(EffectOne.prototype, {
 		this.stripNum = 10;
 		this.callback = function(){};
 	},
-	
 	fadeIn: function(container,callback){
 		if(callback !== undefined){
 			this.callback = callback;
@@ -98,9 +99,7 @@ Object.extend(EffectOne.prototype, {
 			fragment.appendChild(elem);
 		}
 		container.appendChild(fragment);
-		// var imgList = getElementsByClassName('strip_img');
 		this.doMove(list, 0, {left: 0});
-		// this.doMove(imgList, 0, {left: 0});
 	},
 	test: function(){
 		debug('EffectOne')

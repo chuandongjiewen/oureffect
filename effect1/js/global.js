@@ -179,14 +179,12 @@ function bufferMove(obj,oTarget,coefficient,fnCallBack){
 	var oTmp = {};
 	if(typeof obj.timer=='undefined') obj.timer = null;
 	if(obj.timer) clearTimeout(obj.timer);
-	for(attr in oTarget){
-		if(attr=='opacity') {
-			oTarget['opacity'] = oTarget['opacity']*100;
-		}
-		oTmp[attr] = css(obj,oTarget[attr]);
-	}
+
 	obj.timer=setInterval(function(){
 		for(attr in oTarget){
+			if(attr=='opacity') {
+				oTarget['opacity'] = oTarget['opacity']*100;
+			}
 			oTmp[attr] = parseFloat(css(obj,attr));
 			oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
 			oSpeed[attr] = (oTarget[attr] - oTmp[attr])/coefficient;
@@ -196,32 +194,11 @@ function bufferMove(obj,oTarget,coefficient,fnCallBack){
 	},iInterval)
 }
 
-/*弹性运动*/
-function flexibleMove(obj,oTarget,coefficient,fnCallBack){
-	var iInterval = 10;
-	var oSpeed = {};
-	var oTmp = {};
-	if(typeof obj.timer=='undefined') obj.timer = null;
-	if(obj.timer) clearTimeout(obj.timer);
-	for(attr in oTarget){
-		oTmp[attr] = css(obj,oTarget[attr]);
-	}
-	obj.timer=setInterval(function(){
-		for(attr in oTarget){
-			oTmp[attr] = parseFloat(css(obj,attr));
-			oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
-			oSpeed[attr] = (oTarget[attr] - oTmp[attr])/coefficient;
-			oSpeed[attr] = oSpeed[attr] > 0 ? Math.ceil(oSpeed[attr]):Math.floor(oSpeed[attr]);	
-		}
-		bufferdoMove(oTmp,obj, oTarget, oSpeed, fnCallBack);
-	},iInterval)	
-}
-
 function bufferdoMove(oTmp,obj, oTarget, oSpeed, fnCallBack)
 {
 	var bStop = true;
 	for(attr in oTmp){
-		if(oTmp[attr]!=oTarget[attr]){
+		if(Math.abs(oTarget[attr]-oTmp[attr])>1 || Math.abs(oSpeed[attr])>1){
 			bStop = false;
 		}		
 	}
@@ -240,7 +217,33 @@ function bufferdoMove(oTmp,obj, oTarget, oSpeed, fnCallBack)
 		css(obj,oTmp);
 	}
 }
+/*弹性运动*/
+function flexibleMove(obj, oTarget, coefficient,fnCallBack){
+	var iInterval = 10;
+	var oSpeed = {};
+	var oTmp = {};
+	var maxSpeed=65;
+	if(typeof obj.timer=='undefined') obj.timer = null;
+	if(obj.timer) clearTimeout(obj.timer);
+	for(attr in oTarget){
+		oSpeed[attr] = 0;
+	}
+	obj.timer = setInterval(function(){
+		for(attr in oTarget){
+			if(attr=='opacity') {
+				oTarget['opacity'] = oTarget['opacity']*100;
+			}
+			oTmp[attr] = parseFloat(css(obj,attr));
+			oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
 
-
-
+			oSpeed[attr]+=(oTarget[attr]-oTmp[attr])/coefficient;
+			oSpeed[attr]*=0.8;//不乘以这个的话，运动不会停，速度会在正的最大值和负的最大值间变化		
+			if(Math.abs(oSpeed[attr])>maxSpeed)
+			{
+				oSpeed[attr]=oSpeed[attr]>0?maxSpeed:-maxSpeed;
+			}				
+		};		
+		bufferdoMove(oTmp,obj, oTarget, oSpeed, fnCallBack);
+	},iInterval);
+}
 
