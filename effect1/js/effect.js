@@ -50,9 +50,6 @@ function doMovement(list,curIndex){
 function createBlock(param,imgUrl){
 	var parent = document.createElement('div');
 	parent.className = 'box_clone';
-	for(var p in param){
-		parent.style[p] = param[p];
-	}
 	css(parent, param);
 	return parent;
 }
