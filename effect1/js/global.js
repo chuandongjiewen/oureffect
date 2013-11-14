@@ -96,12 +96,14 @@ function css(elem,target){
 					elem.style.opacity=target[attr];
 					elem.style.filter="alpha(opacity:"+target[attr]*100+")";
 					break;
-				case 'zIndex':
-					elem.style.zIndex=target[attr];
-					break;
-				default:
+				case 'width':
+				case 'height':
+				case 'top':
+				case 'left':
 					elem.style[attr]=target[attr]+'px';
 					break;
+				default:
+					elem.style[attr]=target[attr];
 			}
 		}
 	}else{//获取属性
