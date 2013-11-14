@@ -136,12 +136,12 @@ Object.extend(EffectOne.prototype, {
 		}
 		// debug(list[0][0])
 		container.appendChild(fragment);
-		// for(var i=0; i<col;i++){
-		// 	for(var j=0; j<row;j++){
-		// 		debug(list[i][j]);
-		// 	}
-		// }
-		this.newmove(list,0,0,{left:0,top:0});
+		for(var i=0; i<col;i++){
+			for(var j=0; j<row;j++){
+				debug(list[i][j]);
+			}
+		}
+		// this.newmove(list,0,0,{left:0,top:0});
 	},
 
 	newmove: function(list,rowId,colId,param){
