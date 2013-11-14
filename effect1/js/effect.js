@@ -1,9 +1,12 @@
 window.onload = function(){
 	var tag = getElementsByClassName('skitter')[0];
+	var box = getElementsByClassName('box_clone');
+	var len = box.length;
+	
 	var list = [];
 	for(var i=0; i<9;i++){
-		var elem = createBlock({left:i*100,top:-510});
-		// list.push(elem);
+		var elem = createBlock({left:i*100});
+		list.push(elem);
 		tag.appendChild(elem);
 	}
 	doMovement(list,0);
@@ -12,7 +15,7 @@ window.onload = function(){
 function doMovement(list,curIndex){
 	var elem = list[curIndex];
 	curIndex ++;
-	startMove(elem,{top:0},100);
+	startMove(elem,{height:510},100,function(){});
 	var timer = setTimeout(function(){
 		if (curIndex == 9) {
 			debug(curIndex);
@@ -21,6 +24,7 @@ function doMovement(list,curIndex){
 			doMovement(list,curIndex);
 		}
 	},100);
+
 }
 
 
@@ -31,8 +35,9 @@ function createBlock(param){
 	img.src = 'images/1_2.jpg';
 	for(var p in param){
 		parent.style[p] = param[p];
-		img.style[p] = - param[p];
 	}
+	img.style.left = -param['left'];
+	img.style.top = -param['top'];
 	parent.appendChild(img);
 	return parent;
 }

@@ -73,4 +73,97 @@ function getNextElement(node)
     if (node.nextSibling) return getNextElement(node.nextSibling);
     return null;
 }
-	
+
+/*能获取任何属性*/
+function getStyle(obj,attr){
+	//IE
+	if(obj.currentStyle){
+		return obj.currentStyle[attr];
+	}
+	//其他
+	else{
+		return getComputedStyle(obj,false)[attr];
+	} 
+}
+
+
+/*改变元素透明度、位置、大小,target是个json*/
+function css(elem,target){
+	for(attr in target){
+		switch(attr)
+		{
+			case 'alpha':
+				elem.style.opacity=target[attr];
+				elem.style.filter="alpha(opacity:"+target[attr]*100+")";
+				break;
+			case 'zIndex':
+				elem.style.zIndex=target[attr];
+				break;
+			default:
+				elem.style[attr]=target[attr]+'px';
+				break;
+		}
+		//console.log('2:'+target[attr]);
+	}
+}
+
+/*缓冲运动，匀速运动框架*/
+function startMove(obj,target,iTime,fnCallBack){
+	var iInterval = 10;
+	var iEndTime = (new Date()).getTime()+iTime;
+	var iTimes = Math.ceil(iTime/iInterval);
+	var oSpeed = {};
+	var oTmp = {};
+	if(typeof obj.timer=='undefined') obj.timer=null;
+	if(obj.timer) clearTimeout(obj.timer);
+
+
+	for(attr in target){
+		oTmp[attr] = parseInt(getStyle(obj,attr));
+	}
+
+
+	for(attr in target){
+		/*匀速运动*/
+		oSpeed[attr] = (target[attr] - oTmp[attr])/iTimes;
+		/*缓冲运动*/
+		//oSpeed[attr] = Math.ceil((target[attr] - oTmp[attr])/8);
+	}
+
+	obj.timer=setInterval
+	(
+		/*保存元素当前属性*/
+		function ()
+		{
+			for(attr in target){
+				oTmp[attr] = parseInt(getStyle(obj,attr));
+			}
+			doMove(oTmp,obj, target, oSpeed, iEndTime, fnCallBack);
+		}, iInterval
+	);
+}
+
+function doMove(oTmp,obj, oTarget, oSpeed, iEndTime, fnCallBack)
+{
+	var iNow=(new Date()).getTime();
+	if(iNow>=iEndTime)//过了结束时间
+	{
+		clearInterval(obj.timer);
+		obj.timer=null;		
+		css(obj,oTarget);
+		
+		if(fnCallBack)
+		{
+			fnCallBack();
+		}
+	}
+	else
+	{
+		// console.log(oTmp);
+		for(attr in oSpeed){
+			// console.log("4:"+oTmp[attr]);
+			oTmp[attr]+=oSpeed[attr];
+		}	
+		css(obj,oTmp);
+	}
+}
