@@ -4,14 +4,15 @@ body{
 .wrap{
 	width: 100%;
 	height: 800px;
-	margin-left: 180px;
 }
 .container{
 	width: 900px;
 	height: 510px;
 	margin: 100 auto;
 	background: #ccc;
-	position: absolute;
+	position: relative;
+	overflow: hidden;
+
 }
 .skitter{
 	width: 900px;

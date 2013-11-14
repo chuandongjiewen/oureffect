@@ -17,9 +17,15 @@ window.onload = function(){
 }
 
 function doMovement(list,curIndex){
-	var tag = getElementsByClassName('skitter')[0];
-	tag.appendChild(list[curIndex]);
+	var elem = list[curIndex];
 	curIndex ++;
+	startMove(
+		elem,
+		{
+			height:510,
+		},
+		200
+	);
 	var timer = setTimeout(function(){
 		if (curIndex == 9) {
 			debug(curIndex);
@@ -32,16 +38,28 @@ function doMovement(list,curIndex){
 }
 
 
-function createBlock(param){
+// function createBlock(param,imgUrl){
+// 	var parent = document.createElement('div');
+// 	parent.className = 'box_clone';
+// 	var img = document.createElement('img');
+// 	if (imgUrl == undefined) {
+// 		img.src = 'images/1_3.jpg';
+// 	}else{
+// 		img.src = imgUrl;
+// 	}
+// 	for(var p in param){
+// 		parent.style[p] = param[p];
+// 	}
+// 	img.className = 'strip_img';
+// 	img.style.left = -param['left'];
+// 	img.style.top = -param['top'];
+// 	parent.appendChild(img);
+// 	return parent;
+// }
+function createBlock(param,imgUrl){
 	var parent = document.createElement('div');
 	parent.className = 'box_clone';
-	var img = document.createElement('img');
-	img.src = 'images/1_2.jpg';
-	for(var p in param){
-		parent.style[p] = param[p];
-		img.style[p] = - param[p];
-	}
-	parent.appendChild(img);
+	css(parent, param);
 	return parent;
 }
 

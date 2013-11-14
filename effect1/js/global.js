@@ -1,3 +1,4 @@
+
 function addLoadEvent(func)
 {
 	var oldonload=window.onload;
@@ -74,95 +75,162 @@ function getNextElement(node)
     return null;
 }
 
-/*能获取任何属性*/
-function getStyle(obj,attr){
-	//IE
-	if(obj.currentStyle){
-		switch(attr)
-		{
-			case 'opacity':
-				return obj.currentStyle['opacity']*100;	
-				break;
-			default:
-				return obj.currentStyle[attr];
-		}
-		
-	}
-	//其他
-	else{
-		switch(attr)
-		{
-			case 'opacity':
-				return getComputedStyle(obj,false)['opacity']*100;	
-				break;
-			default:
-				return getComputedStyle(obj,false)[attr];
-		}
-	} 
-}
-
-
-/*改变元素透明度、位置、大小,target是个json*/
+/*如果target 为json 则是设置属性；如果为string 则是获取属性*/
 function css(elem,target){
-	for(attr in target){
-		switch(attr)
-		{
-			case 'opacity':
-				elem.style.opacity=target[attr]/100;
-				elem.style.filter="alpha(opacity:"+target[attr]+")";
-				break;
-			case 'zIndex':
-				elem.style.zIndex=target[attr];
-				break;
-			default:
-				elem.style[attr]=target[attr]+'px';
-				break;
+	if(typeof target == 'object'){ //设置属性
+		for(attr in target){
+			switch(attr){
+				case 'opacity':
+					elem.style.opacity=target[attr]/100;
+					elem.style.filter="alpha(opacity:"+target[attr]+")";
+					break;
+				case 'zIndex':
+					elem.style.zIndex=target[attr];
+					break;
+				default:
+					elem.style[attr]=target[attr]+'px';
+					break;
+			}
 		}
+	}
+	//能获取任何属性
+	else{
+		//IE
+		if(elem.currentStyle){
+			switch(attr)
+			{
+				case 'opacity':
+					return elem.currentStyle['opacity']*100;	
+					break;
+				default:
+					return elem.currentStyle[attr];
+			}
+			
+		}
+		//其他
+		else{
+			switch(attr)
+			{
+				case 'opacity':
+					return getComputedStyle(elem,false)['opacity']*100;	
+					break;
+				default:
+					return getComputedStyle(elem,false)[attr];
+			}
+		} 
 	}
 }
 
-/*匀速运动框架*/
-function startMove(obj,target,iTime,fnCallBack){
+
+/*匀速运动*/
+function animate(obj,target,iTime,fnCallBack){
 	var iInterval = 10;
 	var iEndTime = (new Date()).getTime()+iTime;
 	var iTimes = Math.ceil(iTime/iInterval);
 	var oSpeed = {};
 	var oTmp = {};
-	if(typeof obj.timer=='undefined') obj.timer=null;
+	if(typeof obj.timer=='undefined') obj.timer = null;
 	if(obj.timer) clearTimeout(obj.timer);
-
 	for(attr in target){
 		if(attr=='opacity') {
 			target['opacity'] = target['opacity']*100;
 		}
-		oTmp[attr] = parseFloat(getStyle(obj,attr));	
-
 		/*匀速运动*/
 		oSpeed[attr] = (target[attr] - oTmp[attr])/iTimes;
 		oSpeed[attr] > 0 ? Math.ceil(oSpeed[attr]):Math.floor(oSpeed[attr]);
-		/*缓冲运动*/
-		//oSpeed[attr] = Math.ceil((target[attr] - oTmp[attr])/8);
 	}
-
 	obj.timer=setInterval
 	(
+
 		/*保存元素当前属性*/
-		function (){doMove(oTmp,obj, target, oSpeed, iEndTime, fnCallBack);}, 
+		function (){
+			for(attr in oTarget){
+				oTmp[attr] = parseFloat(css(obj,attr));
+				oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
+			}
+			doMove(oTmp,obj, target, oSpeed, iEndTime, fnCallBack);
+		}, 
 		iInterval
 	);
+}
+
+/*缓冲运动*/
+function bufferMove(obj,oTarget,coefficient,fnCallBack){
+	var iInterval = 10;
+	var oSpeed = {};
+	var oTmp = {};
+	if(typeof obj.timer=='undefined') obj.timer = null;
+	if(obj.timer) clearTimeout(obj.timer);
+	for(attr in oTarget){
+		if(attr=='opacity') {
+			oTarget['opacity'] = oTarget['opacity']*100;
+		}
+		oTmp[attr] = css(obj,oTarget[attr]);
+	}
+	obj.timer=setInterval(function(){
+		for(attr in oTarget){
+			oTmp[attr] = parseFloat(css(obj,attr));
+			oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
+			oSpeed[attr] = (oTarget[attr] - oTmp[attr])/coefficient;
+			oSpeed[attr] = oSpeed[attr] > 0 ? Math.ceil(oSpeed[attr]):Math.floor(oSpeed[attr]);	
+		}
+		bufferdoMove(oTmp,obj, oTarget, oSpeed, fnCallBack);
+	},iInterval)
+}
+
+/*弹性运动*/
+function flexibleMove(obj,oTarget,coefficient,fnCallBack){
+	var iInterval = 10;
+	var oSpeed = {};
+	var oTmp = {};
+	if(typeof obj.timer=='undefined') obj.timer = null;
+	if(obj.timer) clearTimeout(obj.timer);
+	for(attr in oTarget){
+		if(attr=='opacity') {
+			oTarget['opacity'] = oTarget['opacity']*100;
+		}
+		oTmp[attr] = css(obj,oTarget[attr]);
+	}
+	obj.timer=setInterval(function(){
+		for(attr in oTarget){
+			oTmp[attr] = parseFloat(css(obj,attr));
+			oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
+			oSpeed[attr] = (oTarget[attr] - oTmp[attr])/coefficient;
+			oSpeed[attr] = oSpeed[attr] > 0 ? Math.ceil(oSpeed[attr]):Math.floor(oSpeed[attr]);	
+		}
+		bufferdoMove(oTmp,obj, oTarget, oSpeed, fnCallBack);
+	},iInterval)	
+}
+
+function bufferdoMove(oTmp,obj, oTarget, oSpeed, fnCallBack)
+{
+	var bStop = true;
+	for(attr in oTmp){
+		if(oTmp[attr]!=oTarget[attr]){
+			bStop = false;
+		}		
+	}
+	if(bStop)
+	{
+		clearInterval(obj.timer);
+		obj.timer=null;		
+		css(obj,oTarget);
+		if(fnCallBack)	fnCallBack();
+	}
+	else
+	{
+		for(attr in oSpeed){
+			oTmp[attr]+=oSpeed[attr];
+		}	
+		css(obj,oTmp);
+	}
 }
 
 function doMove(oTmp,obj, oTarget, oSpeed, iEndTime, fnCallBack)
 {
 	var bStop = false;
 	var iNow=(new Date()).getTime();
-	for(attr in oTarget){
-		oTmp[attr] = parseFloat(getStyle(obj,attr));
-		oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
-		// if(oTmp[attr]!==oTarget[attr]){
-		// 	bStop = false
-		// }
-	}
+
 	if(iNow>=iEndTime) bStop = true;//过了结束时间
 	if(bStop)
 	{
@@ -178,7 +246,6 @@ function doMove(oTmp,obj, oTarget, oSpeed, iEndTime, fnCallBack)
 		}	
 		css(obj,oTmp);
 	}
-	console.log(oTmp['opacity']+","+oTmp['height']);
 }
 
 
