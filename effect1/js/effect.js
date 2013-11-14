@@ -1,20 +1,28 @@
 window.onload = function(){
 	var tag = getElementsByClassName('skitter')[0];
-	var box = getElementsByClassName('box_clone');
-	var len = box.length;
 	
-	var list = [];
-	for(var i=0; i<9;i++){
-		var elem = createBlock({left:i*100});
-		list.push(elem);
-		tag.appendChild(elem);
-	}
+	// var list = [];
+	// for(var i=0; i<9;i++){
+	// 	var elem = createBlock({left:i*100});
+	// 	list.push(elem);
+	// 	tag.appendChild(elem);
+	// }
+	// doMovement(list, 0);
+	var effect1 = new EffectOne();
+	effect1.fadeOut(tag);
+	
 }
 
 function doMovement(list,curIndex){
 	var elem = list[curIndex];
 	curIndex ++;
-	startMove(elem,{height:510},100,function(){});
+	startMove(
+		elem,
+		{
+			height:510,
+		},
+		200
+	);
 	var timer = setTimeout(function(){
 		if (curIndex == 9) {
 			debug(curIndex);
@@ -27,11 +35,15 @@ function doMovement(list,curIndex){
 }
 
 
-function createBlock(param){
+function createBlock(param,imgUrl){
 	var parent = document.createElement('div');
 	parent.className = 'box_clone';
 	var img = document.createElement('img');
-	img.src = 'images/1_2.jpg';
+	if (imgUrl == undefined) {
+		img.src = 'images/1_3.jpg';
+	}else{
+		img.src = imgUrl;
+	}
 	for(var p in param){
 		parent.style[p] = param[p];
 	}

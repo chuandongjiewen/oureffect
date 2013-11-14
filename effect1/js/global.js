@@ -74,6 +74,18 @@ function getNextElement(node)
     return null;
 }
 
+/*能获取任何属性*/
+function getStyle(obj,attr){
+	//IE
+	if(obj.currentStyle){
+		return obj.currentStyle[attr];
+	}
+	//其他
+	else{
+		return getComputedStyle(obj,false)[attr];
+	} 
+}
+
 
 /*如果target 为json 则是设置属性；如果为string 则是获取属性*/
 function css(elem,target){
