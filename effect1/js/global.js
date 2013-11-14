@@ -78,11 +78,26 @@ function getNextElement(node)
 function getStyle(obj,attr){
 	//IE
 	if(obj.currentStyle){
-		return obj.currentStyle[attr];
+		switch(attr)
+		{
+			case 'opacity':
+				return obj.currentStyle['opacity']*100;	
+				break;
+			default:
+				return obj.currentStyle[attr];
+		}
+		
 	}
 	//其他
 	else{
-		return getComputedStyle(obj,false)[attr];
+		switch(attr)
+		{
+			case 'opacity':
+				return getComputedStyle(obj,false)['opacity']*100;	
+				break;
+			default:
+				return getComputedStyle(obj,false)[attr];
+		}
 	} 
 }
 
@@ -92,9 +107,9 @@ function css(elem,target){
 	for(attr in target){
 		switch(attr)
 		{
-			case 'alpha':
-				elem.style.opacity=target[attr];
-				elem.style.filter="alpha(opacity:"+target[attr]*100+")";
+			case 'opacity':
+				elem.style.opacity=target[attr]/100;
+				elem.style.filter="alpha(opacity:"+target[attr]+")";
 				break;
 			case 'zIndex':
 				elem.style.zIndex=target[attr];
@@ -103,11 +118,10 @@ function css(elem,target){
 				elem.style[attr]=target[attr]+'px';
 				break;
 		}
-		//console.log('2:'+target[attr]);
 	}
 }
 
-/*缓冲运动，匀速运动框架*/
+/*匀速运动框架*/
 function startMove(obj,target,iTime,fnCallBack){
 	var iInterval = 10;
 	var iEndTime = (new Date()).getTime()+iTime;
@@ -117,17 +131,15 @@ function startMove(obj,target,iTime,fnCallBack){
 	if(typeof obj.timer=='undefined') obj.timer=null;
 	if(obj.timer) clearTimeout(obj.timer);
 
-
 	for(attr in target){
-		oTmp[attr] = parseInt(getStyle(obj,attr));
-		console.log("3:"+oTmp[attr]);
-	}
+		if(attr=='opacity') {
+			target['opacity'] = target['opacity']*100;
+		}
+		oTmp[attr] = parseFloat(getStyle(obj,attr));	
 
-
-	for(attr in target){
 		/*匀速运动*/
 		oSpeed[attr] = (target[attr] - oTmp[attr])/iTimes;
-		console.log('1:'+oTmp[attr]+oSpeed[attr]);
+		oSpeed[attr] > 0 ? Math.ceil(oSpeed[attr]):Math.floor(oSpeed[attr]);
 		/*缓冲运动*/
 		//oSpeed[attr] = Math.ceil((target[attr] - oTmp[attr])/8);
 	}
@@ -135,39 +147,38 @@ function startMove(obj,target,iTime,fnCallBack){
 	obj.timer=setInterval
 	(
 		/*保存元素当前属性*/
-		function ()
-		{
-			for(attr in target){
-				oTmp[attr] = parseInt(getStyle(obj,attr));
-			}
-			doMove(oTmp,obj, target, oSpeed, iEndTime, fnCallBack);
-		}, iInterval
+		function (){doMove(oTmp,obj, target, oSpeed, iEndTime, fnCallBack);}, 
+		iInterval
 	);
 }
 
 function doMove(oTmp,obj, oTarget, oSpeed, iEndTime, fnCallBack)
 {
+	var bStop = false;
 	var iNow=(new Date()).getTime();
-	if(iNow>=iEndTime)//过了结束时间
+	for(attr in oTarget){
+		oTmp[attr] = parseFloat(getStyle(obj,attr));
+		oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
+		// if(oTmp[attr]!==oTarget[attr]){
+		// 	bStop = false
+		// }
+	}
+	if(iNow>=iEndTime) bStop = true;//过了结束时间
+	if(bStop)
 	{
 		clearInterval(obj.timer);
 		obj.timer=null;		
 		css(obj,oTarget);
-		
-		if(fnCallBack)
-		{
-			fnCallBack();
-		}
+		if(fnCallBack)	fnCallBack();
 	}
 	else
 	{
-		// console.log(oTmp);
 		for(attr in oSpeed){
-			// console.log("4:"+oTmp[attr]);
 			oTmp[attr]+=oSpeed[attr];
 		}	
 		css(obj,oTmp);
 	}
+	console.log(oTmp['opacity']+","+oTmp['height']);
 }
 
 

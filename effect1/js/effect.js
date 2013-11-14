@@ -1,19 +1,19 @@
 window.onload = function(){
 	var tag = getElementsByClassName('skitter')[0];
-	var box = getElementsByClassName('box_clone');
-	var len = box.length;
-	for(var i=0;i<len;i++){
-		(function(i){
-			startMove(box[i],{'height':'510'},1000);
-		})(i);
-	}
 	var list = [];
 	for(var i=0; i<9;i++){
 		var elem = createBlock({left:i*100});
 		list.push(elem);
-		// tag.appendChild(elem);
+		tag.appendChild(elem);
 	}
-	doMovement(list,0);
+
+	var box = getElementsByClassName('box_clone');
+	var len = box.length;
+	for(var i=0;i<len;i++){
+		(function(i){
+			startMove(box[i],{'height':'510','width':'100','opacity':'1'},1000);		
+		})(i);
+	}
 }
 
 function doMovement(list,curIndex){
