@@ -170,3 +170,4 @@ function doMove(oTmp,obj, oTarget, oSpeed, iEndTime, fnCallBack)
 	}
 }
 
+
