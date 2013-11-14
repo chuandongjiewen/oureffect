@@ -9,7 +9,6 @@ window.onload = function(){
 		list.push(elem);
 		tag.appendChild(elem);
 	}
-	doMovement(list,0);
 }
 
 function doMovement(list,curIndex){

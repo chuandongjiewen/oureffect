@@ -74,37 +74,32 @@ function getNextElement(node)
     return null;
 }
 
-/*能获取任何属性*/
-function getStyle(obj,attr){
-	//IE
-	if(obj.currentStyle){
-		return obj.currentStyle[attr];
-	}
-	//其他
-	else{
-		return getComputedStyle(obj,false)[attr];
-	} 
-}
 
-
-/*改变元素透明度、位置、大小,target是个json*/
+/*如果target 为json 则是设置属性；如果为string 则是获取属性*/
 function css(elem,target){
-	for(attr in target){
-		switch(attr)
-		{
-			case 'alpha':
-				elem.style.opacity=target[attr];
-				elem.style.filter="alpha(opacity:"+target[attr]*100+")";
-				break;
-			case 'zIndex':
-				elem.style.zIndex=target[attr];
-				break;
-			default:
-				elem.style[attr]=target[attr]+'px';
-				break;
+	if(typeof target == 'object'){ //设置属性
+		for(attr in target){
+			switch(attr){
+				case 'alpha':
+					elem.style.opacity=target[attr];
+					elem.style.filter="alpha(opacity:"+target[attr]*100+")";
+					break;
+				case 'zIndex':
+					elem.style.zIndex=target[attr];
+					break;
+				default:
+					elem.style[attr]=target[attr]+'px';
+					break;
+			}
 		}
-		//console.log('2:'+target[attr]);
+	}else{//获取属性
+		if(elem.currentStyle){
+			return elem.currentStyle[target];
+		}else{//其他
+			return getComputedStyle(elem,false)[target];
+		} 
 	}
+	
 }
 
 /*缓冲运动，匀速运动框架*/
