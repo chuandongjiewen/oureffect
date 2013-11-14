@@ -5,7 +5,6 @@ window.onload = function(){
 	// effect1.fadeIn(tag);
 	// effect1.fadeOut(tag);
 	effect1.test(tag);
-
 }
 
 
