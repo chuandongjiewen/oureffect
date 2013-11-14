@@ -1,4 +1,3 @@
-
 function addLoadEvent(func)
 {
 	var oldonload=window.onload;
@@ -75,50 +74,35 @@ function getNextElement(node)
     return null;
 }
 
+
+
 /*如果target 为json 则是设置属性；如果为string 则是获取属性*/
 function css(elem,target){
 	if(typeof target == 'object'){ //设置属性
 		for(attr in target){
 			switch(attr){
-				case 'opacity':
-					elem.style.opacity=target[attr]/100;
-					elem.style.filter="alpha(opacity:"+target[attr]+")";
+				case 'alpha':
+					elem.style.opacity=target[attr];
+					elem.style.filter="alpha(opacity:"+target[attr]*100+")";
 					break;
-				case 'zIndex':
-					elem.style.zIndex=target[attr];
-					break;
-				default:
+				case 'width':
+				case 'height':
+				case 'top':
+				case 'left':
 					elem.style[attr]=target[attr]+'px';
 					break;
+				default:
+					elem.style[attr]=target[attr];
 			}
 		}
-	}
-	//能获取任何属性
-	else{
-		//IE
+	}else{//获取属性
 		if(elem.currentStyle){
-			switch(attr)
-			{
-				case 'opacity':
-					return elem.currentStyle['opacity']*100;	
-					break;
-				default:
-					return elem.currentStyle[attr];
-			}
-			
-		}
-		//其他
-		else{
-			switch(attr)
-			{
-				case 'opacity':
-					return getComputedStyle(elem,false)['opacity']*100;	
-					break;
-				default:
-					return getComputedStyle(elem,false)[attr];
-			}
+			return elem.currentStyle[target];
+		}else{//其他
+			return getComputedStyle(elem,false)[target];
 		} 
 	}
+	
 }
 
 
@@ -247,5 +231,6 @@ function doMove(oTmp,obj, oTarget, oSpeed, iEndTime, fnCallBack)
 		css(obj,oTmp);
 	}
 }
+
 
 
