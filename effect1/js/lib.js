@@ -50,7 +50,7 @@ Object.extend(EffectOne.prototype, {
 	initialize: function(param){
 		this.stripNum = 10;
 		this.callback = function(){};
-		this.row = 5;
+		this.row = 1;
 		this.col = 10;
 		this.stripWidth = 0;
 		this.stripHeight = 0;
@@ -105,6 +105,18 @@ Object.extend(EffectOne.prototype, {
 		container.appendChild(fragment);
 		this.doMove(list, 0, {left: 0});
 	},
+	getDir: function(){
+		//x对应left,y对应top;
+		var arr = [
+			{x:-1,y:-0},
+			{x:0,y:-1},
+			{x:-1,y:-1}
+		];
+		var num = (Math.random()*2);
+		var index = (num > 1.5) ? Math.ceil(num) : Math.floor(num);
+		var dir = arr[index];
+		return dir;
+	},
 	test: function(container){
 		var row = this.row,
 			col = this.col;
@@ -115,14 +127,15 @@ Object.extend(EffectOne.prototype, {
 		this.stripWidth = stripWidth;
 		this.stripHeight = stripHeight;
 		var fragment = document.createDocumentFragment();
+		var dir = this.getDir();
 		var list = [];
 		for(var i=0; i<row; i++){//行
 			var tmp = [];
 			for(var j=0; j<col; j++){//列
 				var elem = createBlock({
 					opacity:100,
-					top:-j*stripHeight,
-					left: -i*stripWidth,
+					top: (dir.y)*(i+1)*stripHeight,
+					left: (dir.x)*(j+1)*stripWidth,
 					width:stripWidth,
 					height:stripHeight,
 					backgroundPosition: (col-j)*stripWidth+' '+ (row - i)*stripHeight,
@@ -133,14 +146,7 @@ Object.extend(EffectOne.prototype, {
 			}
 			list.push(tmp);
 		}
-		// debug(list[0][0])
 		container.appendChild(fragment);
-		// for(var i=0; i<col;i++){
-		// 	for(var j=0; j<row;j++){
-		// 		debug(list[i][j]);
-		// 	}
-		// }
-		// debug(list[4][5]);
 		this.newmove(list,0,0,{left:0,top:0});
 	},
 
