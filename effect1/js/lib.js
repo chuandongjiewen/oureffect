@@ -116,9 +116,9 @@ Object.extend(EffectOne.prototype, {
 		this.stripHeight = stripHeight;
 		var fragment = document.createDocumentFragment();
 		var list = [];
-		for(var i=0; i<col; i++){//列
+		for(var i=0; i<row; i++){//列
 			var tmp = [];
-			for(var j=0; j<row; j++){//行
+			for(var j=0; j<col; j++){//行
 				var elem = createBlock({
 					opacity:100,
 					top:-j*stripHeight,
@@ -135,42 +135,11 @@ Object.extend(EffectOne.prototype, {
 		}
 		// debug(list[0][0])
 		container.appendChild(fragment);
-		for(var i=0; i<col;i++){
-			for(var j=0; j<row;j++){
-				debug(list[i][j]);
-			}
-		}
-		// this.newmove(list,0,0,{left:0,top:0});
+		this.newmove(list,0,0,{left:0,top:0});
 	},
 
-	newmove: function(list,rowId,colId,param){
-		debug(rowId+':'+colId)
-		var elem = list[rowId][colId];
-		debug(elem)
-		bufferMove(elem,param,10,function(){});
-		
-		colId ++;
-		if(colId >= this.col){
-			colId = 0;
-			rowId ++;
-		}
-		
-		var _this = this;
-		var timer = setTimeout(function(){
-			if (rowId >= _this.row) {
-				_this.callback();
-				clearTimeout(timer);
-			}else{
-				(function(param){
-					param.left = _this.stripWidth*colId;
-					param.top = _this.stripHeight*rowId;
-					_this.newmove(list,rowId,colId,param)
-					// debug(param)
-				})(param)
-				
-			}
-		},100);
-	}
+	
+
 
 
 });
