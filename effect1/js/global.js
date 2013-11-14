@@ -172,6 +172,30 @@ function doMove(oTmp,obj, oTarget, oSpeed, iEndTime, fnCallBack)
 	console.log(css(obj,'opacity'));
 }
 
+/*缓冲运动*/
+function bufferMove(obj,oTarget,coefficient,fnCallBack){
+	var iInterval = 10;
+	var oSpeed = {};
+	var oTmp = {};
+	if(typeof obj.timer=='undefined') obj.timer = null;
+	if(obj.timer) clearTimeout(obj.timer);
+	for(attr in oTarget){
+		if(attr=='opacity') {
+			oTarget['opacity'] = oTarget['opacity']*100;
+		}
+		oTmp[attr] = css(obj,oTarget[attr]);
+	}
+	obj.timer=setInterval(function(){
+		for(attr in oTarget){
+			oTmp[attr] = parseFloat(css(obj,attr));
+			oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
+			oSpeed[attr] = (oTarget[attr] - oTmp[attr])/coefficient;
+			oSpeed[attr] = oSpeed[attr] > 0 ? Math.ceil(oSpeed[attr]):Math.floor(oSpeed[attr]);	
+		}
+		bufferdoMove(oTmp,obj, oTarget, oSpeed, fnCallBack);
+	},iInterval)
+}
+
 /*弹性运动*/
 function flexibleMove(obj,oTarget,coefficient,fnCallBack){
 	var iInterval = 10;

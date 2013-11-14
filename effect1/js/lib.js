@@ -62,7 +62,7 @@ Object.extend(EffectOne.prototype, {
 		var list = [];
 		for(var i=0; i<num;i++){
 			var elem = createBlock({
-				opacity:1,
+				opacity:100,
 				top: -cHeight,
 				left: i*stripWidth,
 				width:stripWidth,
@@ -86,7 +86,7 @@ Object.extend(EffectOne.prototype, {
 		var list = [];
 		for(var i=0; i<num;i++){
 			var elem = createBlock({
-				opacity:1,
+				opacity:100,
 				top:i*stripHeight,
 				left: -cWidth,
 				width:cWidth,
