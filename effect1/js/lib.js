@@ -18,29 +18,65 @@ Object.extend = function(destination, source) {
 
 var BaseEffect = Class.create();
 BaseEffect.prototype = {
-	initialize: function(param){
-		this.stripNum = 10;
+	initialize: function(){
+		//this.stripNum = 10;
 		this.callback = function(){};
 	},
-	doMove: function(list, curIndex, param){
-		var elem = list[curIndex];
-		curIndex ++;
-		flexibleMove(elem, param, 16,function(){});
-		// bufferMove(elem, param, 10,function(){});
-		// animate(elem, param, 300,function(){});
+	newmove: function(list,rowId,colId,param){
+		var elem = list[rowId][colId];
+		bufferMove(elem,param,10,function(){});
+		colId ++;
+		if(colId >= this.col){
+			colId = 0;
+			rowId ++;
+		}
 		var _this = this;
 		var timer = setTimeout(function(){
-			if (curIndex == _this.stripNum) {
-				debug(curIndex);
+			if (rowId >= _this.row) {
 				_this.callback();
 				clearTimeout(timer);
 			}else{
-				_this.doMove(list,curIndex, param);
+				var p = {
+					left:param['left'] + _this.stripWidth*colId,
+					top:param['top'] + _this.stripHeight*rowId
+				}
+				_this.newmove(list,rowId,colId,p)
 			}
+		},100);
+	},
+	doMove: function(list,rowId,colId,param,fnCallback){
+		var _this = this;
+		if(typeof this.timer=='undefined') this.timer = null;
+		if(this.timer) clearInterval(this.timer);
+		this.timer = setInterval(function(){
+			if (rowId >= _this.row) {
+				_this.callback();
+				clearInterval(_this.timer);
+				if(fnCallback) fnCallback();
+			}
+			else{
+				var elem = list[rowId][colId];
+				var paramMove = {};
+				paramMove['left'] = param['left'] +_this.stripWidth*colId;
+				paramMove['top'] = param['top'] +_this.stripHeight*rowId;
+				flexibleMove(elem, paramMove, 16,function(){});
+				colId++;
+				if(colId==_this.col) {
+					rowId ++;
+					colId = 0;
+				}				
+			}
+
 		},100);
 	},
 	test:function(){
 		debug('super')
+	},
+	createBlock:function(param,imgUrl){
+		var parent = document.createElement('div');
+		parent.className = 'box_clone';
+		css(parent, param);
+		return parent;		
 	}
 }
 
@@ -50,60 +86,10 @@ Object.extend(EffectOne.prototype, {
 	initialize: function(param){
 		this.stripNum = 10;
 		this.callback = function(){};
-		this.row = 1;
-		this.col = 10;
+		this.row = 5;
+		this.col = 5;
 		this.stripWidth = 0;
 		this.stripHeight = 0;
-	},
-	fadeIn: function(container,callback){
-		if(callback !== undefined){
-			this.callback = callback;
-		}
-		var num = this.stripNum;
-		var cWidth = parseInt(css(container,"width"));
-		var cHeight = parseInt(css(container,"height"));
-		var stripWidth = Math.ceil(cWidth/num);
-		var fragment = document.createDocumentFragment();
-		var list = [];
-		for(var i=0; i<num;i++){
-			var elem = createBlock({
-				opacity:100,
-				top: -cHeight,
-				left: i*stripWidth,
-				width:stripWidth,
-				height:cHeight,
-				backgroundPosition: (num - i)*stripWidth+' '+(-1*cHeight),
-				backgroundImage: 'url(images/1_3.jpg)'
-			});
-			list.push(elem);
-			fragment.appendChild(elem);
-		}
-		container.appendChild(fragment);
-		this.doMove(list, 0, {top: 0});
-	},
-
-	fadeOut: function(container){
-		var num = this.stripNum;
-		var cWidth = parseInt(css(container,"width"));
-		var cHeight = parseInt(css(container,"height"));
-		var stripHeight = Math.ceil(cHeight/num);
-		var fragment = document.createDocumentFragment();
-		var list = [];
-		for(var i=0; i<num;i++){
-			var elem = createBlock({
-				opacity:100,
-				top:i*stripHeight,
-				left: -cWidth,
-				width:cWidth,
-				height:stripHeight,
-				backgroundPosition: (-1*cWidth)+' '+ (num - i)*stripHeight,
-				backgroundImage: 'url(images/1_3.jpg)'
-			});
-			list.push(elem);
-			fragment.appendChild(elem);
-		}
-		container.appendChild(fragment);
-		this.doMove(list, 0, {left: 0});
 	},
 	getDir: function(){
 		//x对应left,y对应top;
@@ -132,7 +118,7 @@ Object.extend(EffectOne.prototype, {
 		for(var i=0; i<row; i++){//行
 			var tmp = [];
 			for(var j=0; j<col; j++){//列
-				var elem = createBlock({
+				var elem = this.createBlock({
 					opacity:100,
 					top: (dir.y)*(i+1)*stripHeight,
 					left: (dir.x)*(j+1)*stripWidth,
@@ -146,33 +132,10 @@ Object.extend(EffectOne.prototype, {
 			}
 			list.push(tmp);
 		}
-		container.appendChild(fragment);
-		this.newmove(list,0,0,{left:0,top:0});
-	},
-
-	newmove: function(list,rowId,colId,param){
-		// debug(rowId+':'+colId)
-		var elem = list[rowId][colId];
-		bufferMove(elem,param,10,function(){});
-		colId ++;
-		if(colId >= this.col){
-			colId = 0;
-			rowId ++;
-		}
 		var _this = this;
-		var timer = setTimeout(function(){
-			if (rowId >= _this.row) {
-				_this.callback();
-				clearTimeout(timer);
-			}else{
-				var p = {
-					left: _this.stripWidth*colId,
-					top: _this.stripHeight*rowId
-				}
-				_this.newmove(list,rowId,colId,p)
-			}
-		},100);
+		container.appendChild(fragment);
+		this.doMove(list,0,0,{left:0,top:0},function(){
+			//_this.doMove(list,0,0,{left:900,top:900});
+		});
 	}
-
-
 });

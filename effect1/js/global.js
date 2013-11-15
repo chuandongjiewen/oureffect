@@ -129,7 +129,7 @@ function animate(obj,oTarget,iTime,fnCallBack){
 	var oSpeed = {};
 	var oTmp = {};
 	if(typeof obj.timer=='undefined') obj.timer = null;
-	if(obj.timer) clearTimeout(obj.timer);
+	if(obj.timer) clearInterval(obj.timer);
 	for(attr in oTarget){
 		/*匀速运动*/
 		oTmp[attr] = parseFloat(css(obj,attr));
@@ -178,7 +178,7 @@ function bufferMove(obj,oTarget,coefficient,fnCallBack){
 	var oSpeed = {};
 	var oTmp = {};
 	if(typeof obj.timer=='undefined') obj.timer = null;
-	if(obj.timer) clearTimeout(obj.timer);
+	if(obj.timer) clearInterval(obj.timer);
 
 	obj.timer=setInterval(function(){
 		for(attr in oTarget){
@@ -224,7 +224,7 @@ function flexibleMove(obj, oTarget, coefficient,fnCallBack){
 	var oTmp = {};
 	var maxSpeed=65;
 	if(typeof obj.timer=='undefined') obj.timer = null;
-	if(obj.timer) clearTimeout(obj.timer);
+	if(obj.timer) clearInterval(obj.timer);
 	for(attr in oTarget){
 		oSpeed[attr] = 0;
 	}
