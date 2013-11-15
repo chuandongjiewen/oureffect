@@ -66,7 +66,6 @@ BaseEffect.prototype = {
 					colId = 0;
 				}				
 			}
-
 		},100);
 	},
 	test:function(){
