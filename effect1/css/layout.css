@@ -22,10 +22,6 @@ body{
 	position: absolute;
 }
 .box_clone{
-	height: 0;
-	width: 0;
-	opacity:0;
-	filter：alpha(opacity=0);/*IE5、IE5.5、IE6、IE7*/
 	overflow: hidden;
 	position: absolute;
 	display: inline;
