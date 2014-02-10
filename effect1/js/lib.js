@@ -45,12 +45,15 @@ BaseEffect.prototype = {
 				paramMove['left'] = left+colId*_this.stripWidth;
 				paramMove['top'] = top+rowId*_this.stripHeight;
 				paramMove['opacity'] = _this.opacity[1];
-				if(_this.param['width']) 
-					paramMove['width'] =_this.param['width'];
-				else{ _this.param['width'] = _this.stripWidth }
-				if(_this.param['height'])
-				 paramMove['height'] =_this.param['height'];
-				else{ _this.param['height'] = _this.stripWidth }
+				if(_this.param){
+					if(typeof(_this.param['width'])!="undefine") 
+						paramMove['width'] =_this.param['width'];
+					else{ paramMove['width'] = _this.stripWidth }
+					if(typeof(_this.param['height'])!="undefine") 
+					 paramMove['height'] =_this.param['height'];
+					else{ paramMove['height'] = _this.stripWidth }					
+				}
+
 				switch(_this.moveType){
 					case 'flexibleMove':
 						if(rowId == row-1 & colId == col-1) {

@@ -86,8 +86,8 @@ function css(elem,target){
 					elem.style.opacity=target[attr]/100;
 					elem.style.filter="alpha(opacity:"+target[attr]+")";
 					break;
+
 				case 'backgroundImage':
-				case '-webkit-transform':
 					elem.style[attr]=target[attr];
 					break;
 				default:
