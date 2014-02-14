@@ -2,28 +2,20 @@ function debug(info){
 	console.log(info);
 }
 
-(function($){
-	$.fn.dragsort = function(options){
-		var opts = $.extend({}, $.fn.dragsort.defaults, options);
-		var list = {};
-		var lists = [];
-		$(this).each(function(index,val){
-			var BaseEffect = {
-				initialize:function(){					
-				}
-			};
-		})
-		
-
-	};
-	$.fn.dragsort.defaults = {
-		"stripWidth" : 0,
-		"stripHeight" : 0,
-		"left0" : 0,
-		"top0" : 0,
-		callback = function(){}	
+var Class = {
+	create: function(){
+		return function(){
+			this.initialize.apply(this, arguments);
+		}
 	}
-})(jQuery);
+}
+
+Object.extend = function(destination, source) {   
+	for (var property in source) {   
+		destination[property] = source[property];   
+	}   
+	return destination;   
+}  
 
 var BaseEffect = Class.create();
 BaseEffect.prototype = {
@@ -84,6 +76,9 @@ BaseEffect.prototype = {
 				}				
 			}
 		},200);
+	},
+	test:function(){
+		debug('super')
 	},
 	createBlock:function(param){
 		var parent = document.createElement('div');

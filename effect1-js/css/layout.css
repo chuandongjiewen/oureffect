@@ -1,0 +1,31 @@
+body{
+	margin: 0;
+}
+.wrap{
+	width: 100%;
+	height: 800px;
+}
+.container{
+	width: 900px;
+	height: 510px;
+	margin: 100 auto;
+	background: #ccc;
+	position: relative;
+	overflow: hidden;
+
+}
+.skitter{
+	width: 900px;
+	height: 510px;
+}
+.image{
+	position: absolute;
+}
+.box_clone{
+	overflow: hidden;
+	position: absolute;
+	display: inline;
+}
+.box_clone img{
+	position: absolute;
+}
