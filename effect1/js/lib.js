@@ -96,13 +96,15 @@ function debug(info){
 			}		
 		},
 		fadeIn: function(){
+			debug('fadeIn')
 			var _this = this;
-			var fragment = jQuery.buildFragment();
+			var fragment = document.createDocumentFragment();
 			var cWidth = parseInt(this.obj.css("width"));
 			var cHeight = parseInt(this.obj.css("height"));
 			var stripWidth = Math.ceil(cWidth/_this.opts.col);
 			var stripHeight = Math.ceil(cHeight/_this.opts.row);
 			var list = [];
+
 			for(var i=0; i<_this.opts.row; i++){//行
 				var tmp = [];
 				for(var j=0; j<_this.opts.col; j++){//列
@@ -117,7 +119,7 @@ function debug(info){
 					});
 					// tmp.push(elem);
 					// debug(tmp);
-					fragment.appendChild(elem);
+					fragment.appendChild(elem[0]);
 				}
 
 				list.push(elem);
