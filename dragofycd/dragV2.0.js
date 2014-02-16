@@ -42,7 +42,8 @@
 
 	ClassDragSort.fn = ClassDragSort.prototype = {};
 	ClassDragSort.fn.extend = $.extend;
-	ClassDragSort.fn.extend({
+	ClassDragSort.fn.extend(
+	{
 		init: function(){
 			var tagName = $(this.container).children().size() == 0 ? "li" : $(this.container).children(":first").get(0).tagName.toLowerCase();
 			if (opts.itemSelector == "") {

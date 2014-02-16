@@ -1,8 +1,17 @@
 window.onload = function(){
-	$('.skitter').skitter();
 
-	var holeImg = document.getElementsByClassName('image')[0].getElementsByTagName('img')[0];
-
+	var holeImg = $('.image img');
+	$(".skitter").skitter(holeImg,{	
+		'row':2,
+		'col':5,
+		'speed':30,
+		'imgUrl':'images/1_3.jpg',
+		'opacity':[0,100],
+		'dir':{'x':1,'y':-1}//{-1,1} {1,-1} {-1,-1}
+		});
+	// holeImg.bufferMove({width:200},30,function(){
+	// 	holeImg.bufferMove({width:500},30);
+	// });
 	// var effect1 = new EffectOne({
 	// 	'row':2,
 	// 	'col':5,

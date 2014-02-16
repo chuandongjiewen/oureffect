@@ -1,242 +1,161 @@
-function addLoadEvent(func)
-{
-	var oldonload=window.onload;
-	if(typeof window.onload!='function')
-	{
-		window.onload=func;
-	}
-	else
-	{
-		window.onload=function()
-		{
-			oldonload();
-			func();
-		}
-	}
-}
-
-/*根据类名获得对象*/
-
-function getElementsByClassName(searchClass, node,tag){  //在node节点里面的tag标签找class,写的时候记得加引号
-	if(document.getElementsByClassName){return  document.getElementsByClassName(searchClass)}
-	else{        
-		node = node || document;        
-		tag = tag || "*";        
-		var classes = searchClass.split(" "),        
-		elements = (tag === "*" && node.all)? node.all : node.getElementsByTagName(tag),        
-		patterns = [],         
-		returnElements = [],        
-		current,         
-		match;        
-		var i = classes.length;       
-		while(--i >= 0){patterns.push(new RegExp("(^|\\s)" + classes[i] + "(\\s|$)"));}        
-		var j = elements.length;       
-		while(--j >= 0){             
-			current = elements[j];           
-			match = false;            
-			for(var k=0, kl=patterns.length; k<kl; k++){                
-				match = patterns[k].test(current.className);                
-				if (!match)  break;           
-			} 
-			if (match)  returnElements.push(current);        
-		}        
-		return returnElements;   
-	} 
-}
-/*获取第一个子节点的函数，兼容FF*/
-function getFirstChild(obj){
-	var firstDIV;
-	for (i=0; i<obj.childNodes.length; i++){
-		if (obj.childNodes[i].nodeType==1){
-			firstDIV=obj.childNodes[i];
-			return firstDIV;
-		}
-		else 
-			continue;
-	}
-}
-/*判断是否有className的函数，调用例子为：o.className=o.addClass(o,"normal");*/
-function hasClass(element, className) {  
-	var reg = new RegExp('(\\s|^)'+className+'(\\s|$)');     
-	return element.className.match(reg); 
-} 
-/*动态删除className的函数，调用例子为：removeClass(document.getElementById("test"), "test") */
-function removeClass(element, className) {     
-	if (hasClass(element, className)){ 
-		var reg = new RegExp('(\\s|^)'+className+'(\\s|$)');         
-		element.className = element.className.replace(reg,' ');     
-	} 
-} 
-function getNextElement(node)
-{
-    if (node.nodeType == 1) return node;
-    if (node.nextSibling) return getNextElement(node.nextSibling);
-    return null;
-}
-
-
-
-/*如果target 为json 则是设置属性；如果为string 则是获取属性*/
-function css(elem,target){
-	if(typeof target == 'object'){ //设置属性
-		for(attr in target){
-			switch(attr){
-				case 'alpha':
-				case 'opacity':
-					elem.style.opacity=target[attr]/100;
-					elem.style.filter="alpha(opacity:"+target[attr]+")";
-					break;
-
-				case 'backgroundImage':
-					elem.style[attr]=target[attr];
-					break;
-				default:
-					elem.style[attr]=target[attr]+'px';
-			}
-		}
-	}else{//获取属性
-		if(elem.currentStyle){
-			switch(target){
-				case 'alpha':
-				case 'opacity':
-					return elem.currentStyle['opacity']*100;
-				break;
-				default:
-					return elem.currentStyle[target];
-			};
-		}else{//其他
-			switch(target){
-				case 'alpha':
-				case 'opacity':
-					return getComputedStyle(elem,false)['opacity']*100;
-				break;
-				default:
-					return getComputedStyle(elem,false)[target];
-			}
-		} 
-	}
-	
-}
-
-
-/*匀速运动*/
-function animate(obj,oTarget,iTime,fnCallBack){
-	var iInterval = 10;
-	var iEndTime = (new Date()).getTime()+iTime;
-	var iTimes = Math.ceil(iTime/iInterval);
-	var oSpeed = {};
-	var oTmp = {};
-	if(typeof obj.timer=='undefined') obj.timer = null;
-	if(obj.timer) clearInterval(obj.timer);
-	for(attr in oTarget){
-		/*匀速运动*/
-		oTmp[attr] = parseFloat(css(obj,attr));
-		oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
-		oSpeed[attr] = (oTarget[attr] - oTmp[attr])/iTimes;
-		oSpeed[attr] > 0 ? Math.ceil(oSpeed[attr]):Math.floor(oSpeed[attr]);
-	}
-	obj.timer=setInterval
-	(
-		/*保存元素当前属性*/
-		function (){
-			for(attr in oTarget){
-				oTmp[attr] = parseFloat(css(obj,attr));
-				oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
-			}
-			doMove(oTmp,obj, oTarget, oSpeed, iEndTime, fnCallBack);
-		}, 
-		iInterval
-	);
-}
-function doMove(oTmp,obj, oTarget, oSpeed, iEndTime, fnCallBack)
-{
-	var bStop = false;
-	var iNow=(new Date()).getTime();
-	if(iNow>=iEndTime) bStop = true;//过了结束时间
-	if(bStop)
-	{
-		clearInterval(obj.timer);
-		obj.timer=null;		
-		css(obj,oTarget);
-		if(fnCallBack)	fnCallBack();
-	}
-	else
-	{
-		for(attr in oSpeed){
-			oTmp[attr]+=oSpeed[attr];
-		}	
-		css(obj,oTmp);
-	}
-}
-
 /*缓冲运动*/
-function bufferMove(obj,oTarget,coefficient,fnCallBack){
-	var iInterval = 10;
-	var oSpeed = {};
-	if(typeof obj.timer=='undefined') obj.timer = null;
-	if(obj.timer) clearInterval(obj.timer);
-	obj.timer=setInterval(function(){
-		var oTmp = {};
-		for(attr in oTarget){
-			oTmp[attr] = parseFloat(css(obj,attr));
-			oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
-			oSpeed[attr] = (oTarget[attr] - oTmp[attr])/coefficient;
-			oSpeed[attr] = oSpeed[attr] > 0 ? Math.ceil(oSpeed[attr]):Math.floor(oSpeed[attr]);	
-		}
-		bufferdoMove(oTmp,obj, oTarget, oSpeed, fnCallBack);
-	},iInterval)
-}
+(function($){
+	var bufferMoves = [];
+	$.fn.bufferMove = function(oTarget,coefficient,fnCallBack){
+		return this.each(function() {
+			bufferMoves.push(new $.bufferMove($(this),oTarget,coefficient,fnCallBack));
+		});
+	};
+	$.bufferMove = function(obj,oTarget,coefficient,fnCallBack) {
+		
+		this.obj = obj;
+		this.oTarget = oTarget;
+		this.coefficient = coefficient;
+		this.callback = fnCallBack;
+		this.timer = null;
+		this.bufferMove();
+	};
 
-function bufferdoMove(oTmp,obj, oTarget, oSpeed, fnCallBack)
-{
-	var bStop = true;
-	for(attr in oTmp){
-		//以前这里有问题，一直执行这个，系统一直认为这个大于1，因为oTmp[attr]
-		if(Math.abs(oTarget[attr]-oTmp[attr])>1 || Math.abs(oSpeed[attr])>1){
-			bStop = false;
-			console.log(5);
-		}		
-	}
-	if(bStop)
-	{
-		clearInterval(obj.timer);
-		obj.timer=null;		
-		css(obj,oTarget);
-		if(fnCallBack)	fnCallBack();
-	}
-	else
-	{
-		for(attr in oSpeed){
-			oTmp[attr]+=oSpeed[attr];
-		}	
-		css(obj,oTmp);
-		//console.log(4);
-	}
-}
-/*弹性运动*/
-function flexibleMove(obj, oTarget, coefficient,fnCallBack){
-	var iInterval = 10;
-	var oSpeed = {};
-	var maxSpeed=65;
-	if(typeof obj.timer=='undefined') obj.timer = null;
-	if(obj.timer) clearInterval(obj.timer);
-	for(attr in oTarget){
-		oSpeed[attr] = 0;
-	}
-	obj.timer = setInterval(function(){
-		var oTmp = {};
-		for(attr in oTarget){
-			oTmp[attr] = parseFloat(css(obj,attr));
-			oTmp[attr] = (oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
-
-			oSpeed[attr]+=(oTarget[attr]-oTmp[attr])/coefficient;
-			oSpeed[attr]*=0.8;//不乘以这个的话，运动不会停，速度会在正的最大值和负的最大值间变化		
-			if(Math.abs(oSpeed[attr])>maxSpeed)
+	$.bufferMove.fn = $.bufferMove.prototype = {};	
+	$.bufferMove.fn.extend = $.extend;
+	$.bufferMove.fn.extend({
+		/*缓冲运动*/
+		bufferMove : function(){
+			var _this = this;
+			var iInterval = 10;
+			var oSpeed = {};		
+			if(this.timer) clearInterval(_this.timer);
+			this.timer=setInterval(function(){
+				var oTmp = {};
+				for(attr in _this.oTarget){
+					oTmp[attr] = parseFloat(_this.obj.css(attr));
+					oTmp[attr] = (_this.oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
+					oSpeed[attr] = (_this.oTarget[attr] - oTmp[attr])/_this.coefficient;
+					oSpeed[attr] = oSpeed[attr] > 0 ? Math.ceil(oSpeed[attr]):Math.floor(oSpeed[attr]);	
+				}
+				_this.bufferdoMove(oTmp,oSpeed);
+			},iInterval)
+		},
+		bufferdoMove:function(oTmp, oSpeed)
+		{
+			var bStop = true;
+			var _this = this;
+			for(attr in oTmp){
+				//以前这里有问题，一直执行这个，系统一直认为这个大于1，因为oTmp[attr]
+				if(Math.abs(_this.oTarget[attr]-oTmp[attr])>1 || Math.abs(oSpeed[attr])>1){
+					bStop = false;
+					console.log(5);
+				}		
+			}
+			if(bStop)
 			{
-				oSpeed[attr]=oSpeed[attr]>0?maxSpeed:-maxSpeed;
-			}				
-		};	
-		bufferdoMove(oTmp,obj, oTarget, oSpeed, fnCallBack);
-	},iInterval);
-}
+				clearInterval(_this.timer);
+				_this.timer=null;		
+				_this.obj.css(_this.oTarget);
+				if(this.callback)	this.callback();
+			}
+			else
+			{
+				for(attr in oSpeed){
+					oTmp[attr]+=oSpeed[attr];
+				}	
+				_this.obj.css(oTmp);
+			}
+		}
+	});
+})(jQuery);
 
+/*弹性运动*/
+(function($){
+	var flexibleMove = [];
+	$.fn.flexibleMove = function(oTarget,coefficient,fnCallBack){
+		return this.each(function() {
+			flexibleMove.push(new $.flexibleMove($(this),oTarget,coefficient,fnCallBack));
+		});
+	};
+	$.flexibleMove = function(obj,oTarget,coefficient,fnCallBack) {
+		this.obj = obj;
+		this.oTarget = oTarget;
+		this.coefficient = coefficient;
+		this.callback = fnCallBack;
+		this.timer = null;
+		this.flexibleMove();
+	};
+
+	$.flexibleMove.fn = $.flexibleMove.prototype = {};	
+	$.flexibleMove.fn.extend = $.extend;
+	$.flexibleMove.fn.extend({
+		flexibleMove : function(){
+			var iInterval = 10;
+			var oSpeed = {};
+			var maxSpeed=65;
+			var _this = this;
+			if(typeof this.timer=='undefined') this.timer = null;
+			if(this.timer) clearInterval(this.timer);
+			for(attr in _this.oTarget){
+				oSpeed[attr] = 0;
+			}
+			this.timer = setInterval(function(){
+				var oTmp = {};
+				for(attr in _this.oTarget){
+					oTmp[attr] = parseFloat(_this.obj.css(attr));
+					oTmp[attr] = (_this.oTarget[attr]-oTmp[attr])>0? Math.ceil(oTmp[attr]):Math.floor(oTmp[attr]);
+					oSpeed[attr]+=(_this.oTarget[attr]-oTmp[attr])/_this.coefficient;
+					oSpeed[attr]*=0.8;//不乘以这个的话，运动不会停，速度会在正的最大值和负的最大值间变化		
+					if(Math.abs(oSpeed[attr])>maxSpeed)
+					{
+						oSpeed[attr]=oSpeed[attr]>0?maxSpeed:-maxSpeed;
+					}				
+				};	
+				_this.bufferdoMove(oTmp, oSpeed);
+			},iInterval);
+		},
+		bufferdoMove:function(oTmp, oSpeed)
+		{
+			var bStop = true;
+			var _this = this;
+			for(attr in oTmp){
+				//以前这里有问题，一直执行这个，系统一直认为这个大于1，因为oTmp[attr]
+				if(Math.abs(_this.oTarget[attr]-oTmp[attr])>1 || Math.abs(oSpeed[attr])>1){
+					bStop = false;
+					console.log(5);
+				}		
+			}
+			if(bStop)
+			{
+				clearInterval(_this.timer);
+				_this.timer=null;		
+				_this.obj.css(_this.oTarget);
+				if(this.callback)	this.callback();
+			}
+			else
+			{
+				for(attr in oSpeed){
+					oTmp[attr]+=oSpeed[attr];
+				}	
+				_this.obj.css(oTmp);
+			}
+		}
+	});
+})(jQuery);
+
+// function doMove(oTmp,obj, oTarget, oSpeed, iEndTime, fnCallBack)
+// {
+// 	var bStop = false;
+// 	var iNow=(new Date()).getTime();
+// 	if(iNow>=iEndTime) bStop = true;//过了结束时间
+// 	if(bStop)
+// 	{
+// 		clearInterval(obj.timer);
+// 		obj.timer=null;		
+// 		css(obj,oTarget);
+// 		if(fnCallBack)	fnCallBack();
+// 	}
+// 	else
+// 	{
+// 		for(attr in oSpeed){
+// 			oTmp[attr]+=oSpeed[attr];
+// 		}	
+// 		css(obj,oTmp);
+// 	}
+// }
