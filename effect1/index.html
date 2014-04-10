@@ -1,22 +1,128 @@
+<!--
+	ImageSwitcher
+	Copyright 20140410 by Ada Wang/汪洁文
+ -->
 <html>
 <head>
 	<meta charset="utf-8"/>
-	<link rel="stylesheet" type="text/css" href="css/layout.css">
 	<script type="text/javascript" src="js/jquery.js"></script>
-	<script type="text/javascript" src="js/global.js"></script>
 	<script type="text/javascript" src="js/lib.js"></script>
 	<script type="text/javascript" src="js/effect.js"></script>
-	<title>洁文艹川东</title>
+	<title>ImageSwitcher</title>
+	<style type="text/css">
+		body{
+			margin: 0;padding: 0;
+		}
+		ul{
+			list-style: none;
+		}
+		.unable a{
+			text-decoration: none;
+			cursor: default;
+			color: #706E6E;
+			transition: color 1.5s;
+			-moz-transition: color 1.5s; /* Firefox 4 */
+			-webkit-transition: color 1.5s; /* Safari 和 Chrome */
+			-o-transition: color 1.5s;
+		}
+		.enable a{
+			color:#5A96FF;
+			cursor: pointer;
+			transition: color 1.5s;
+			-moz-transition: color 1.5s; /* Firefox 4 */
+			-webkit-transition: color 1.5s; /* Safari 和 Chrome */
+			-o-transition: color 1.5s;			
+		}
+		.enable a:hover{
+			color: #C9940D; 
+			transition: color 1.5s;
+			-moz-transition: color 1.5s; /* Firefox 4 */
+			-webkit-transition: color 1.5s; /* Safari 和 Chrome */
+			-o-transition: color 1.5s;
+		}
+		.wrap{
+			width: 100%;
+		}
+		.container{
+			width: 98%;
+			margin: 100 auto;		
+		}
+		#effect{
+			width: 1160px;
+			height: 613px;
+			position: relative;
+			overflow: hidden;			
+		}
+		.switcher{
+			left:0;
+			top: 0;
+			width: 1160px;
+			height: 613px;
+		}
+		.image{
+			position: absolute;
+		}
+		.image img{
+			left:0;
+			top: 0;
+			display: none;
+		}
+		.image img.showDiv{
+			display: block;
+		}
+		.fl{
+			float: left;
+			display: inline;
+		}
+		.fr{
+			float: right;
+			display: inline;
+		}
+		.cl:after{content: ".";display: block;height: 0px;clear: both;
+		visibility: hidden;}
+		* html .cl{height: 1%;}/*IE6*/
+		*:first-child+html .cl{min-height: 1px;}/*IE7*/
+		footer{
+			width: 100%;
+			display: block;
+			text-align: center;
+			line-height: 100px;
+		}
+	</style>
 </head>
 <body>
+
 <div class="wrap">
-	<div class="container" id="effect_1">
-		<div class="image">
-			<img src="images/1_1.jpg">
-		</div>
-		<div class="skitter myclass">
+	<div class="container cl">
+		<ul class="fl" id="choseEffect">
+			ImageSwitcher
+			<li class="enable"><a href="#stop">stop</a></li>
+			<li class="unable"><a href="#random">random</a></li>			
+			<li class="unable"><a href="#blockIn">blockIn</a></li>
+			<li class="unable"><a href="#blockOut">blockOut</a></li>
+			<li class="unable"><a href="#closeIn">closeIn</a></li>
+			<li class="unable"><a href="#closeOut">closeOut</a></li>
+			<li class="unable"><a href="#crossIn">crossIn</a></li>
+			<li class="unable"><a href="#crossOut">crossOut</a></li>
+			<li class="unable"><a href="#circleOut">circleOut</a></li>
+			<li class="unable"><a href="#circleOutLeft">circleOutLeft</a></li>
+			<li class="unable"><a href="#circleOutRight">circleOutRight</a></li>	
+		</ul>
+		<div id="effect" class="fr">
+			<div class="image">
+				<img src="images/3.jpg" id="test" class="showDiv">
+				<img src="images/2.jpg" id="test" >
+				<img src="images/4.jpg" id="test" >
+				<img src="images/5.jpg" id="test" >
+				<img src="images/1.jpg" id="test" >
+			</div>
+			<div class="switcher">
+			</div>			
 		</div>
 	</div>
 </div>
+<footer>
+	Copyright 20140410 by Ada Wang/汪洁文	
+</footer>
 </body>
 </html>

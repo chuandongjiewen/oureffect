@@ -1,113 +1,59 @@
+/*
+	ImageSwitcher
+	Copyright 20140410 by Ada Wang/汪洁文
+*/
 window.onload = function(){
-
-	var holeImg = $('.image img');
-	$(".skitter").skitter(holeImg,{	
-		'row':2,
-		'col':5,
-		'speed':30,
-		'imgUrl':'images/1_3.jpg',
-		'opacity':[0,100],
-		'dir':{'x':1,'y':-1}//{-1,1} {1,-1} {-1,-1}
-		});
-	// holeImg.bufferMove({width:200},30,function(){
-	// 	holeImg.bufferMove({width:500},30);
-	// });
-	// var effect1 = new EffectOne({
-	// 	'row':2,
-	// 	'col':5,
-	// 	'moveType':'flexibleMove',
-	// 	//'moveType':'bufferMove',
-	// 	'speed':30
-	// });
-	// effect1.fadeIn(tag,holeImg,
-	// 	{		
-	// 	'left0':0,
-	// 	'top0':0,
-	// 	'imgUrl':'images/1_3.jpg',
-	// 	'opacity':[0,100],
-	// 	'dir':{'x':1,'y':-1}//{-1,1} {1,-1} {-1,-1}
-	// 	},function(){
-	// 			var effect2 = new EffectOne({
-	// 			'row':5,
-	// 			'col':5,
-	// 			//'moveType':'flexibleMove',
-	// 			'moveType':'bufferMove',
-	// 			'speed':30
-	// 			});
-	// 			effect2.fadeOut(tag,holeImg,
-	// 			{		
-	// 			'left0':0,
-	// 			'top0':0,
-	// 			'width':0,
-	// 			'height':0,
-	// 			'imgUrl':"images/1_2.jpg",
-	// 			'opacity':[100,0],
-	// 			});
-	// 	});
-	// var effect3 = new EffectTwo({
-	// 	'row':6,
-	// 	'col':10,
-	// 	'moveType':'flexibleMove',
-	// 	//'moveType':'bufferMove',
-	// 	'speed':100
-	// });
-	// effect3.fadeIn(tag,holeImg,
-	// 	{		
-	// 	'left0':0,
-	// 	'top0':0,
-	// 	'imgUrl':'images/1_2.jpg',
-	// 	'opacity':[0,100],
-	// 	},function(){
-	// 		effect3.fadeOut(tag,holeImg,
-	// 			{		
-	// 			'left0':100,
-	// 			'top0':500,
-	// 			'imgUrl':'images/1_3.jpg',
-	// 			'opacity':[100,0],
-	// 			}
-	// 		);		
-	// 	}
-	// );
-
-	// var effect4 = new EffectThree({
-	// 	'row':4,
-	// 	'col':6,
-	// 	'moveType':'flexibleMove',
-	// 	//'moveType':'bufferMove',
-	// 	'speed':100
-	// });
-	// effect4.fadeIn(tag,holeImg,
-	// 	{		
-	// 	'left0':0,
-	// 	'top0':0,
-	// 	'imgUrl':'images/1_3.jpg',
-	// 	'opacity':[0,100],
-	// 	}
-	// ,function(){
-	// 		effect4.fadeOut(tag,holeImg,
-	// 			{		
-	// 			'left0':0,
-	// 			'top0':500,
-	// 			'imgUrl':'images/1_2.jpg',
-	// 			'opacity':[100,0],
-	// 			}
-	// 		);		
-	// 	}	
-	// );
-//第五种方法只有fadeout
-// var effect5 = new EffectFour({
-// 		'moveType':'flexibleMove',
-// 		//'moveType':'bufferMove',
-// 		'speed':100
-// 	});
-	// effect5.fadeOut(tag,holeImg,
-	// 	{		
-	// 	'imgUrl':'images/1_3.jpg',
-	// 	'opacity':[100,0],
-	// 	}
-	// );
+	$("#effect").switcher({
+		// 'row':4,
+		// 'col':6,
+		// 'moveType':'bufferMove',
+		'loopPlay':false,
+		'speed':40,
+		'moveStyle': "random"//random,blockIn,blockOut,closeIn,closeOut,crossIn,crossOut,circleOut
+	});
+	btnEffect();
 }
-
-function debug(infor){
-	console.log(infor);
+function btnEffect(){
+	var playing = false;
+	var lis = $("#choseEffect li");
+	var len = lis.length;
+	//并列元素加事件
+	lis.each(function(index, val) {
+		$(val).click(function(event) {	//单纯this是htmlElement
+			if($(this).hasClass('unable')) return;
+			var action = val.innerText;
+			$("#effect").switcherStop();
+			switch(action){
+				case 'stop':
+					var _this = this;
+					if(playing == true)	playing=false;
+					$(this).removeClass('enable').addClass('unable');
+					setTimeout(function(){			
+						$(_this).nextAll().removeClass('unable').addClass('enable');
+					},1500)
+					
+				break;
+				case 'random':
+					if(playing == true)	return;
+					playing = true;	
+					lis.eq(0).removeClass('unable').addClass('enable');
+					lis.slice(1,len).removeClass('enable').addClass('unable');
+					$("#effect").switcherPlay({
+						'loopPlay':true,
+						'moveStyle': action
+					});	
+				break;
+				default:
+					if(playing == true)	return;
+					playing = true;	
+					$("#effect").switcherPlay({
+						'loopPlay':false,
+						'moveStyle': action
+					},function(){
+						playing = false;
+					});					
+				break;
+			}
+		});
+	});			
 }
