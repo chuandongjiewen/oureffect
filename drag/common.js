@@ -19,5 +19,8 @@ $(document).ready(function(){
 			data = $("#list1 li").map(function() { return $(this).children().html(); }).get();
 			$("input[name=list2SortOrder]").val(data.join("|"));
 		};
+		
 });
+
+
 

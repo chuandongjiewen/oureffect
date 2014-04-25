@@ -1,0 +1,136 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="three.min.js"></script>
+<title>3D地球-技术交流群123552714</title>
+<!--auth:肖邦也没谱-->
+<!--更多交流HTML5、Web3D、Three.js技术，请加入QQ群123552714进行交流-->
+<style type="text/css">
+body{
+    padding: 0;
+    margin: 0;
+}
+
+div#canvas-frame {
+    border: none;
+    cursor: pointer;
+    width: 800px;
+    height: 600px;
+    background-color: #EEEEEE;
+}
+</style>
+<script>    
+
+function Sky(){
+    this.screenWidth = window.innerHeight;
+    this.screenHeight = window.innerHeight;
+    this.aspect = this.screenWidth/this.screenHeight;
+    this.renderer = null;//渲染器
+    this.camera = null;//相机位置
+    this.scene = null;//场景
+    this.width = 0;//canvas的width
+    this.height = 0;//canvas的height
+    this.directionLight = null;//定点光源
+    this.ambientLight = null;//环境光
+    
+    this.earth = null;//地球
+    this.moon = null;//月亮
+    this.angle = 0;
+}
+
+//初始化3d渲染器
+Sky.prototype.initThree = function(){
+    var canvas = document.getElementById('canvas-frame');
+    this.width = canvas.clientWidth;
+    this.height = canvas.clientHeight;
+    this.renderer = new THREE.WebGLRenderer({antialias:true});
+    this.renderer.setSize(this.screenWidth, this.screenHeight);
+    //将renderer渲染的场景加入到canvas中
+    canvas.appendChild(this.renderer.domElement);
+    this.renderer.setClearColorHex(0x0000000, 1.0);
+}
+
+//初始化相机
+Sky.prototype.initCamera = function(){
+    this.camera = new THREE.PerspectiveCamera(45, this.aspect, 1, 10000);
+    this.camera.position.set(300, 50, 20);
+    
+    //设置相机的法向量
+    this.camera.up.x = 0;
+    this.camera.up.y = 0;
+    this.camera.up.z = 1;
+    
+    //设置相机镜头对准的点
+    this.camera.lookAt({x:0, y:0, z:0});
+}
+
+//初始化场景
+Sky.prototype.initScene = function(){
+    this.scene = new THREE.Scene();
+}
+
+//初始化光照
+Sky.prototype.initLight = function(){
+    this.directionLight = new THREE.DirectionalLight(0xffffff, 1.0, 0);
+    this.directionLight.position.set(0, 300, 30);
+    this.scene.add(this.directionLight);
+    
+    this.ambientLight = new THREE.AmbientLight(0x7777777);
+    this.scene.add(this.ambientLight);
+}
+
+//初始化地球和月亮
+Sky.prototype.initObject = function(){
+    var earthTexture = THREE.ImageUtils.loadTexture('earth.jpg');
+    this.earth = new THREE.Mesh(
+        new THREE.SphereGeometry(50,50,50), 
+        new THREE.MeshLambertMaterial({map: earthTexture})
+    );
+    this.scene.add(this.earth);
+    this.earth.position.set(0,0,0);
+    
+    var moonTexture = THREE.ImageUtils.loadTexture('moon.jpg');
+    this.moon = new THREE.Mesh(
+        new THREE.SphereGeometry(8, 20, 20),
+        new THREE.MeshLambertMaterial({map: moonTexture})
+    );
+    this.scene.add(this.moon);
+    this.moon.position.set(0,250,0);
+}
+
+Sky.prototype.loop = function(){
+    this.angle ++;
+    this.renderer.clear();
+    this.earth.rotation.set(Math.PI/2, this.angle/100, 0);
+    this.moon.rotation.set(Math.PI/2, this.angle/200, 0);
+    this.moon.position.set( -70*Math.sin(this.angle/200) , 70*Math.cos(this.angle/200) ,0);
+    this.renderer.render(this.scene, this.camera);
+//    console.log(this.angle);
+//    window.requestAnimationFrame(this.loop());
+}
+
+Sky.prototype.start = function(){
+    this.initThree();
+    this.initCamera();
+    this.initScene();
+    this.initLight();
+    this.initObject();
+    setInterval(this.loop(),10);
+}
+
+Sky.prototype.test = function(){
+    console.log('test');
+}
+
+window.onload = function() {
+    var sky = new Sky();
+    sky.start();
+//    sky.loop(10);
+//    window.requestAnimationFrame(function(){console.log(1)});
+} 
+</script>
+</head>
+<body>
+    <div id="canvas-frame"></div>
+</body>
+</html>
