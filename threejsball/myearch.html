@@ -107,6 +107,10 @@ Sky.prototype.loop = function(){
     this.renderer.render(this.scene, this.camera);
 //    console.log(this.angle);
 //    window.requestAnimationFrame(this.loop());
+    var _this = this;
+    requestAnimationFrame(function(){
+        _this.loop();
+    });
 }
 
 Sky.prototype.start = function(){
@@ -115,7 +119,8 @@ Sky.prototype.start = function(){
     this.initScene();
     this.initLight();
     this.initObject();
-    setInterval(this.loop(),10);
+    this.loop();
+    
 }
 
 Sky.prototype.test = function(){
