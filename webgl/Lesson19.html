@@ -1,0 +1,582 @@
+
+<html>
+<head>
+    <title>NeHe's OpenGL Lesson 19 for WebGl (Particle Engine Using Triangle Strips)</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style type="text/css">
+        canvas {
+            border: 2px solid black;
+            -moz-box-shadow: black 2px 2px 2px;
+            background-color: black;
+        }
+    </style>
+    <script src="sylvester.js" type="text/javascript"></script>
+    <script src="glUtils.js" type="text/javascript"></script>
+
+    <!-- Fragment shader program -->
+
+    <script id="shader-fs" type="x-shader/x-fragment">
+        varying highp vec2 vTextureCoord;
+        varying highp vec4 vColor;
+
+        uniform sampler2D uSampler;
+
+        void main(void) {
+        highp vec4 texelColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+
+        gl_FragColor = vec4(texelColor * vColor);
+        }
+    </script>
+
+    <!-- Vertex shader program -->
+
+    <script id="shader-vs" type="x-shader/x-vertex">
+        attribute highp vec3 aVertexPosition;
+        attribute highp vec2 aTextureCoord;
+        attribute highp vec4 aColor;
+
+        uniform highp mat4 uNormalMatrix;
+        uniform highp mat4 uMVMatrix;
+        uniform highp mat4 uPMatrix;
+
+        varying highp vec2 vTextureCoord;
+        varying highp vec4 vColor;
+
+        void main(void) {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        vTextureCoord = aTextureCoord;
+        vColor = aColor;
+        }
+    </script>
+</head>
+
+<body>
+<canvas id="glcanvas" width="640" height="480">
+    Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element.
+</canvas>
+<script type="text/javascript">
+var canvas;
+var gl;
+
+var cubeVerticesBuffer;
+var cubeVerticesTextureCoordBuffer;
+var cubeVerticesIndexBuffer;
+var cubeVerticesNormalBuffer;
+var cubeVertexColorBuffer;
+var cubeRotation = 0.0;
+var lastCubeUpdateTime = 0;
+
+var cubeImage;
+var cubeTexture;
+
+var mvMatrix;
+var shaderProgram;
+var vertexPositionAttribute;
+var vertexNormalAttribute;
+var textureCoordAttribute;
+var vertexColorAttribute;
+var perspectiveMatrix;
+
+var slowdown = 2.0;              // Slow Down Particles
+var xspeed = 0.0;                       // Base X Speed (To Allow Keyboard Direction Of Tail)
+var yspeed = 0.0;                       // Base Y Speed (To Allow Keyboard Direction Of Tail)
+var zoom = -40.0;                // Used To Zoom Out
+var col = 0;                            // Current Color Selection
+var delay = 0;                          // Rainbow Effect Delay
+var MAX_PARTICLES = 1000;
+var particle = [];
+var colors =
+        [
+            [1.0, 0.5, 0.5],
+            [1.0, 0.75, 0.5],
+            [1.0, 1.0, 0.5],
+            [0.75, 1.0, 0.5],
+            [0.5, 1.0, 0.5],
+            [0.5, 1.0, 0.75],
+            [0.5, 1.0, 1.0],
+            [0.5, 0.75, 1.0],
+            [0.5, 0.5, 1.0],
+            [0.75, 0.5, 1.0],
+            [1.0, 0.5, 1.0],
+            [1.0, 0.5, 0.75]
+        ];
+
+var is8down = false;
+var is2down = false;
+var is4down = false;
+var is6down = false;
+var istabdown = false;
+
+var vertices = [];
+var textureCoordinates = [];
+var color = [];
+var cubeVertexIndices = [];
+
+start();
+//
+// start
+//
+// Called when the canvas is created to get the ball rolling.
+//
+function start() {
+    canvas = document.getElementById("glcanvas");
+
+    initWebGL();      // Initialize the GL context
+
+    // Only continue if WebGL is available and working
+
+    if (gl) {
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
+        gl.clearDepth(1.0);                 // Clear everything
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA,gl.ONE);
+
+        // Initialize the shaders; this is where all the lighting for the
+        // vertices and so forth is established.
+
+        initShaders();
+
+        // Here's where we call the routine that builds all the objects
+        // we'll be drawing.
+
+        initParticles();
+        initBuffers();
+
+        // Next, load and set up the textures we'll be using.
+
+        initTextures();
+
+        // Set up to draw the scene periodically.
+
+        setInterval(drawScene, 15);
+
+        document.addEventListener( 'keydown', onDocumentKeyUp, false );
+    }
+}
+
+//
+// initWebGL
+//
+// Initialize WebGL, returning the GL context or null if
+// WebGL isn't available or could not be initialized.
+//
+function initWebGL() {
+    gl = null;
+
+    try {
+        gl = canvas.getContext("experimental-webgl");
+    }
+    catch(e) {
+    }
+
+    // If we don't have a GL context, give up now
+
+    if (!gl) {
+        alert("Unable to initialize WebGL. Your browser may not support it.");
+    }
+}
+
+function initParticles(){
+    for (var i=0;i<MAX_PARTICLES;i++)                           // Initials All The Textures
+    {
+        var part = {
+            active:true, // Make All The Particles Active
+            life:1.0, // Give All The Particles Full Life
+            fade:((Math.random() * 100.0)) / 1000.0 + 0.00, // Random Fade Speed
+            r:colors[0][0], // Select Red Rainbow Color
+            g:colors[0][1], // Select Red Rainbow Color
+            b:colors[0][2], // Select Red Rainbow Color
+            xi:(((Math.random() * 50.0)) - 26.0) * 10.0, // Random Speed On X Axis
+            yi:(((Math.random() * 50.0)) - 25.0) * 10.0, // Random Speed On Y Axis
+            zi:(((Math.random() * 50.0)) - 25.0) * 10.0, // Random Speed On Z Axis
+            xg:0.0, // Set Horizontal Pull To Zero
+            yg:-0.8, // Set Vertical Pull Downward
+            zg:0.0                                     // Set Pull On Z Axis To Zero
+        }
+        particle.push(part);
+    }
+}
+//
+// initBuffers
+//
+// Initialize the buffers we'll need. For this demo, we just have
+// one object -- a simple two-dimensional cube.
+//
+function initBuffers() {
+    for(var i=0;i<MAX_PARTICLES;i++) {                      // Loop Through All The Particles
+        if (particle[i].active) {                           // If The Particle Is Active
+            var x = particle[i].x;                        // Grab Our Particle X Position
+            var y = particle[i].y;                        // Grab Our Particle Y Position
+            var z = particle[i].z + zoom;                 // Particle Z Pos + Zoom
+
+            // Draw The Particle Using Our RGB Values, Fade The Particle Based On It's Life
+            color[i*16]     = particle[i].r;
+            color[i*16 + 1] = particle[i].g;
+            color[i*16 + 2] = particle[i].b;
+            color[i*16 + 3] = particle[i].life;
+            color[i*16 + 4]     = particle[i].r;
+            color[i*16 + 5] = particle[i].g;
+            color[i*16 + 6] = particle[i].b;
+            color[i*16 + 7] = particle[i].life;
+            color[i*16 + 8]     = particle[i].r;
+            color[i*16 + 9] = particle[i].g;
+            color[i*16 + 10] = particle[i].b;
+            color[i*16 + 11] = particle[i].life;
+            color[i*16 + 12]     = particle[i].r;
+            color[i*16 + 13] = particle[i].g;
+            color[i*16 + 14] = particle[i].b;
+            color[i*16 + 15] = particle[i].life;
+
+            // Build Quad From A Triangle Strip
+            textureCoordinates[i*8]   = 1.0;
+            textureCoordinates[i*8+1] = 1.0;
+            vertices[i*12]   = x + 0.5;
+            vertices[i*12+1] = y + 0.5;
+            vertices[i*12+2] = z;  // Top Right
+            textureCoordinates[i*8+2] = 0.0;
+            textureCoordinates[i*8+3] = 1.0;
+            vertices[i*12+3] = x - 0.5;
+            vertices[i*12+4] = y + 0.5;
+            vertices[i*12+5] = z;// Top Left
+            textureCoordinates[i*8+4] = 1.0;
+            textureCoordinates[i*8+5] = 0.0;
+            vertices[i*12+6] = x + 0.5;
+            vertices[i*12+7] = y - 0.5;
+            vertices[i*12+8] = z;// Bottom Right
+            textureCoordinates[i*8+6] = 0.0;
+            textureCoordinates[i*8+7] = 0.0;
+            vertices[i*12+9]  = x - 0.5;
+            vertices[i*12+10] = y - 0.5;
+            vertices[i*12+11] = z;// Bottom Left
+            cubeVertexIndices[i*6]   = i*4;
+            cubeVertexIndices[i*6+1] = i*4+1;
+            cubeVertexIndices[i*6+2] = i*4+2;
+            cubeVertexIndices[i*6+3] = i*4+1;
+            cubeVertexIndices[i*6+4] = i*4+2;
+            cubeVertexIndices[i*6+5] = i*4+3;
+
+            particle[i].x += particle[i].xi / (slowdown * 1000);// Move On The X Axis By X Speed
+            particle[i].y += particle[i].yi / (slowdown * 1000);// Move On The Y Axis By Y Speed
+            particle[i].z += particle[i].zi / (slowdown * 1000);// Move On The Z Axis By Z Speed
+
+            particle[i].xi += particle[i].xg;           // Take Pull On X Axis Into Account
+            particle[i].yi += particle[i].yg;           // Take Pull On Y Axis Into Account
+            particle[i].zi += particle[i].zg;           // Take Pull On Z Axis Into Account
+            particle[i].life -= particle[i].fade;       // Reduce Particles Life By 'Fade'
+
+            if (particle[i].life < 0.0) {                  // If Particle Is Burned Out
+                particle[i].life = 1.0;                   // Give It New Life
+                particle[i].fade = ((Math.random() * 100.0)) / 1000.0 + 0.003;   // Random Fade Value
+                particle[i].x = 0.0;                      // Center On X Axis
+                particle[i].y = 0.0;                      // Center On Y Axis
+                particle[i].z = 0.0;                      // Center On Z Axis
+                particle[i].xi = xspeed + ((Math.random() * 60.0)) - 32.0;  // X Axis Speed And Direction
+                particle[i].yi = yspeed + ((Math.random() * 60.0)) - 30.0;  // Y Axis Speed And Direction
+                particle[i].zi = ((Math.random() * 60.0)) - 30.0; // Z Axis Speed And Direction
+                particle[i].r = colors[col][0];            // Select Red From Color Table
+                particle[i].g = colors[col][1];            // Select Green From Color Table
+                particle[i].b = colors[col][2];            // Select Blue From Color Table
+            }
+
+            // If Number Pad 8 And Y Gravity Is Less Than 1.5 Increase Pull Upwards
+            if (is8down && (particle[i].yg<1.5)) {
+                particle[i].yg += 0.01;
+            }
+
+            // If Number Pad 2 And Y Gravity Is Greater Than -1.5 Increase Pull Downwards
+            if (is2down && (particle[i].yg>-1.5)) {
+                particle[i].yg -= 0.01;
+            }
+
+            // If Number Pad 6 And X Gravity Is Less Than 1.5 Increase Pull Right
+            if (is6down && (particle[i].xg<1.5)) {
+                particle[i].xg += 0.01;
+            }
+
+            // If Number Pad 4 And X Gravity Is Greater Than -1.5 Increase Pull Left
+            if (is4down && (particle[i].xg>-1.5)) {
+                particle[i].xg -= 0.01;
+            }
+
+            if (istabdown) {                                       // Tab Key Causes A Burst
+                particle[i].x = 0.0;                              // Center On X Axis
+                particle[i].y = 0.0;                              // Center On Y Axis
+                particle[i].z = 0.0;                              // Center On Z Axis
+                particle[i].xi = ((Math.random() * 50.0) - 26.0) * 10.0;   // Random Speed On X Axis
+                particle[i].yi = ((Math.random() * 50.0) - 25.0) * 10.0;   // Random Speed On Y Axis
+                particle[i].zi = ((Math.random() * 50.0) - 25.0) * 10.0;   // Random Speed On Z Axis
+            }
+        }
+    }
+    is8down = false;
+    is2down = false;
+    is4down = false;
+    is6down = false;
+    istabdown = false;
+
+    cubeVerticesBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+
+    cubeVerticesTextureCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesTextureCoordBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
+
+    cubeVertexColorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(color), gl.STATIC_DRAW);
+
+    cubeVerticesIndexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVerticesIndexBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
+}
+
+//
+// initTextures
+//
+// Initialize the textures we'll be using, then initiate a load of
+// the texture images. The handleTextureLoaded() callback will finish
+// the job; it gets called each time a texture finishes loading.
+//
+function initTextures() {
+    cubeTexture = gl.createTexture();
+    cubeImage = new Image();
+    cubeImage.crossOrigin = "";
+    cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture); }
+    cubeImage.src = "textures/particle.png";
+}
+
+function handleTextureLoaded(image, texture) {
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+}
+
+//
+// drawScene
+//
+// Draw the scene.
+//
+function drawScene() {
+    // Clear the canvas before we start drawing on it.
+
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // Establish the perspective with which we want to view the
+    // scene. Our field of view is 45 degrees, with a width/height
+    // ratio of 640:480, and we only want to see objects between 0.1 units
+    // and 100 units away from the camera.
+
+    perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 100.0);
+    loadIdentity();
+    mvTranslate([0.0,0.0,-6.0]);
+
+    // Draw the cube by binding the array buffer to the cube's vertices
+    // array, setting attributes, and pushing it to GL.
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesBuffer);
+    gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+    // Set the texture coordinates attribute for the vertices.
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, cubeVerticesTextureCoordBuffer);
+    gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
+    gl.vertexAttribPointer(vertexColorAttribute, 4, gl.FLOAT, false, 0, 0);
+    // Specify the texture to map onto the faces.
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, cubeTexture);
+    gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
+
+    // Draw.
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVerticesIndexBuffer);
+    setMatrixUniforms();
+    gl.drawElements(gl.TRIANGLES, cubeVertexIndices.length, gl.UNSIGNED_SHORT, 0);
+
+
+    // Update the rotation for the next draw, if it's time to do so.
+    initBuffers();
+    var currentTime = (new Date).getTime();
+    lastCubeUpdateTime = currentTime;
+}
+
+function onDocumentKeyUp ( event ) {
+    event.preventDefault();
+    if( event.keyCode == 104 /*num8*/){
+        is8down = true;
+    }else if( event.keyCode == 98 /*num2*/){
+        is2down = true;
+    }else if( event.keyCode == 100 /*num4*/){
+        is4down = true;
+    }else if( event.keyCode == 102 /*num6*/){
+        is6down = true;
+    }else if( event.keyCode == 9 /*tab*/){
+        istabdown = true;
+    }else if( event.keyCode == 107 /*num+*/){
+        slowdown -= 0.01;              // Speed Up Particles
+    }else if( event.keyCode == 109 /*num-*/){
+        slowdown += 0.01;              // Slow Down Particles
+    }else if( event.keyCode == 33 /*PgUp*/){
+        zoom += 0.1;                   // Zoom In
+    }else if( event.keyCode == 34 /*PgDn*/){
+        zoom -= 0.1;                   // Zoom Out
+    }
+}
+
+//
+// initShaders
+//
+// Initialize the shaders, so WebGL knows how to light our scene.
+//
+function initShaders() {
+    var fragmentShader = getShader(gl, "shader-fs");
+    var vertexShader = getShader(gl, "shader-vs");
+
+    // Create the shader program
+
+    shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+
+    // If creating the shader program failed, alert
+
+    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+        alert("Unable to initialize the shader program.");
+    }
+
+    gl.useProgram(shaderProgram);
+
+    vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+    gl.enableVertexAttribArray(vertexPositionAttribute);
+
+    textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+    gl.enableVertexAttribArray(textureCoordAttribute);
+
+    vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aColor");
+    gl.enableVertexAttribArray(vertexColorAttribute);
+}
+
+//
+// getShader
+//
+// Loads a shader program by scouring the current document,
+// looking for a script with the specified ID.
+//
+function getShader(gl, id) {
+    var shaderScript = document.getElementById(id);
+
+    // Didn't find an element with the specified ID; abort.
+
+    if (!shaderScript) {
+        return null;
+    }
+
+    // Walk through the source element's children, building the
+    // shader source string.
+
+    var theSource = "";
+    var currentChild = shaderScript.firstChild;
+
+    while(currentChild) {
+        if (currentChild.nodeType == 3) {
+            theSource += currentChild.textContent;
+        }
+
+        currentChild = currentChild.nextSibling;
+    }
+
+    // Now figure out what type of shader script we have,
+    // based on its MIME type.
+
+    var shader;
+
+    if (shaderScript.type == "x-shader/x-fragment") {
+        shader = gl.createShader(gl.FRAGMENT_SHADER);
+    } else if (shaderScript.type == "x-shader/x-vertex") {
+        shader = gl.createShader(gl.VERTEX_SHADER);
+    } else {
+        return null;  // Unknown shader type
+    }
+
+    // Send the source to the shader object
+
+    gl.shaderSource(shader, theSource);
+
+    // Compile the shader program
+
+    gl.compileShader(shader);
+
+    // See if it compiled successfully
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        alert("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));
+        return null;
+    }
+
+    return shader;
+}
+
+//
+// Matrix utility functions
+//
+
+function loadIdentity() {
+    mvMatrix = Matrix.I(4);
+}
+
+function multMatrix(m) {
+    mvMatrix = mvMatrix.x(m);
+}
+
+function mvTranslate(v) {
+    multMatrix(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
+}
+
+function setMatrixUniforms() {
+    var pUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+    gl.uniformMatrix4fv(pUniform, false, new Float32Array(perspectiveMatrix.flatten()));
+
+    var mvUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+    gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mvMatrix.flatten()));
+
+    var normalMatrix = mvMatrix.inverse();
+    normalMatrix = normalMatrix.transpose();
+    var nUniform = gl.getUniformLocation(shaderProgram, "uNormalMatrix");
+    gl.uniformMatrix4fv(nUniform, false, new Float32Array(normalMatrix.flatten()));
+}
+
+var mvMatrixStack = [];
+
+function mvPushMatrix(m) {
+    if (m) {
+        mvMatrixStack.push(m.dup());
+        mvMatrix = m.dup();
+    } else {
+        mvMatrixStack.push(mvMatrix.dup());
+    }
+}
+
+function mvPopMatrix() {
+    if (!mvMatrixStack.length) {
+        throw("Can't pop from an empty matrix stack.");
+    }
+
+    mvMatrix = mvMatrixStack.pop();
+    return mvMatrix;
+}
+
+function mvRotate(angle, v) {
+    var inRadians = angle * Math.PI / 180.0;
+
+    var m = Matrix.Rotation(inRadians, $V([v[0], v[1], v[2]])).ensure4x4();
+    multMatrix(m);
+}
+</script>
+</body>
+</html>

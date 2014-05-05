@@ -1,0 +1,116 @@
+<html>
+<head>
+	<title>sdgsldg</title>
+	<style type="text/css">
+		#wrap{
+			width: 600px;
+			height: 600px;
+			background: #999;
+			margin: auto auto auto auto;
+			text-align: center;
+			position: relative;
+		}
+		#wrap a{
+			list-style: none;
+			width: 100px;
+			height: 30px;
+			text-align: center;
+			font-size: 16px;
+			position: absolute;
+			left: 0px;
+			top: 0px;
+		}
+		
+	</style>
+</head>
+
+<body>
+<script type="text/javascript">
+var mList = [];//要旋转的标签的链表，每个对象有3个属性{x:直角坐标系的横坐标,y:纵坐标,theta:当前的角度,}
+var angle =	Math.PI/180;//每次要旋转的角度
+var radius = 120;//半径
+
+var mouseX = 0;//鼠标当前的x坐标
+var mouseY = 0;//鼠标当前的y坐标
+
+var mDiv = null;//wrap的div
+var mA = null;//里面的a标签
+
+window.onload = function(){
+	mDiv = document.getElementById('wrap');
+	mA = mDiv.getElementsByTagName('a');
+	var oTag = null;
+
+	//把mA标签中的宽度和高度赋给oTag对象，mList中保存的是mTag对象，之所以要这么做是为了可以在oTag对象中添加x,y,theta属性
+	for(var i=0;i<mA.length;i++){
+		oTag = {};
+		oTag.offsetWidth = mA[i].offsetWidth;
+		oTag.offsetHeight = mA[i].offsetHeight;
+		mList.push(oTag);
+	}
+
+	init();//初始化变量
+	setInterval(rotate,30);//间歇调用
+}
+
+//旋转的函数
+function rotate(){
+	for(var i=0;i<mList.length;i++){
+		
+		var rotateAngle = mList[i].theta + angle;//得到当前的角度，把以前的角度加上要旋转的角度就可以了
+		mList[i].theta = rotateAngle%(2*Math.PI);//保存当前的角度
+		mList[i].x  = radius*Math.cos(rotateAngle);//计算新的x坐标
+		mList[i].y = radius*Math.sin(rotateAngle);//计算新的y坐标
+
+		mA[i].style.left = mDiv.offsetWidth/2+mList[i].x - mList[i].offsetWidth/2+'px';//计算left
+		mA[i].style.top = mDiv.offsetHeight/2-mList[i].y - mList[i].offsetHeight/2+'px';//计算top,为什么这里是减去y呢，因为默认屏幕左上角为原点，往下top越大，而我的直角坐标系y轴的箭头是向上的
+	}
+
+}
+
+//初始化的函数
+function init(){
+	var theta = 0;
+	var tmp = [];//临时列表
+
+	//建立一个碎片，这样做有助于优化性能
+	var fragment = document.createDocumentFragment();
+	for(var i=0;i<mA.length;i++){
+		tmp.push(mA[i]);
+	}
+
+	for(var i=0;i<tmp.length;i++){
+		fragment.appendChild(tmp[i]);
+	}
+	mDiv.appendChild(fragment);//把标签插入到页面中
+
+	//初始化每一个标签的位置
+	for(var i=0;i<mList.length;i++){
+		theta = Math.random()*(2*Math.PI);//随机得到一个角度
+		mList[i].x = radius*Math.cos(theta);//得到x坐标
+		mList[i].y = radius*Math.sin(theta);//得到y坐标
+		mList[i].theta = theta;//保存初始角度的值，以后每次迭代的时候从theta开始
+
+		mA[i].style.left = mDiv.offsetWidth/2+mList[i].x - mList[i].offsetWidth/2+'px';//计算left
+		mA[i].style.top = mDiv.offsetHeight/2-mList[i].y - mList[i].offsetHeight/2+'px';//计算top
+	}
+
+
+	
+}
+</script>
+<div id="wrap">
+	<a href="">1</a>
+	<a href="">2</a>
+	<a href="">3</a>
+	<a href="">4</a>
+	<a href="">5</a>
+	<a href="">6</a>
+	<a href="">7</a>
+	<a href="">8</a>
+	<a href="">9</a>
+	<a href="">0</a>
+</div>
+
+</body>
+<html>

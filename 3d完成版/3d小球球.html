@@ -1,0 +1,241 @@
+<html>
+<head>
+    <title>sdgsldg</title>
+    <style type="text/css">
+        #wrap{
+            width: 600px;
+            height: 600px;
+            background: #999;
+            margin: auto auto auto auto;
+            text-align: center;
+            position: relative;
+        }
+        #wrap a{
+            list-style: none;
+            width: 80px;
+            height: 40px;
+            text-align: center;
+            font-size: 16px;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            /*background: #333;*/
+            /*color: #fff;*/
+        }
+        
+        .blue{color: blue}
+        .red{color: red}
+        .yellow{color: yellow}
+    </style>
+</head>
+
+<body>
+<script type="text/javascript">
+var mList = [];//要旋转的标签的链表，每个对象有3个属性{x:直角坐标系的横坐标,y:纵坐标,theta:当前的角度,}
+var angle = Math.PI/180;//每次要旋转的角度
+var radius = 120;//半径
+
+var mouseX = 0;//鼠标当前的x坐标
+var mouseY = 0;//鼠标当前的y坐标
+
+var lasta = 1;//初始旋转x的偏移量
+var lastb = 1;//初始旋转y的偏移量
+
+var mDiv = null;//wrap的div
+var mA = null;//里面的a标签
+var isActive = false;//是否激活，鼠标移上去就激活
+var tspeed = 10;//旋转速度
+var size = 250;//虚拟空间直角坐标系的大小
+
+window.onload = function(){
+    mDiv = document.getElementById('wrap');
+    mA = mDiv.getElementsByTagName('a');
+    var oTag = null;
+
+    //把mA标签中的宽度和高度赋给oTag对象，mList中保存的是mTag对象，之所以要这么做是为了可以在oTag对象中添加x,y,theta属性
+    for(var i=0;i<mA.length;i++){
+        oTag = {};
+        oTag.offsetWidth = mA[i].offsetWidth;
+        oTag.offsetHeight = mA[i].offsetHeight;
+        mList.push(oTag);
+    }
+
+    init();//初始化变量
+    sineCosine( 0,0,0 );
+    bindEvent();
+    setInterval(rotate,30);//间歇调用
+}
+
+//绑定事件
+function bindEvent(){
+    mDiv.onmouseover = function(){
+        isActive = true;
+    }
+    mDiv.onmouseout = function(){
+        isActive = false;
+    }
+    mDiv.onmousemove = function(ev){
+        var oEvent = window.event || ev;
+        mouseX = oEvent.clientX - (mDiv.offsetLeft + mDiv.offsetWidth/2);
+        mouseY = oEvent.clientY - (mDiv.offsetTop + mDiv.offsetHeight/2);
+        mouseX = mouseX/5;
+        mouseY = mouseY/5;
+        // console.log(mouseX)
+    }
+}
+
+//旋转的函数
+function rotate(){
+    var a,b;
+    if (isActive) {
+        a = (Math.min( Math.max( -mouseY, -size ), size ) / radius ) * tspeed;
+        b = (Math.min( Math.max( -mouseX, -size ), size ) / radius ) * tspeed; 
+    }else{
+        a = lasta*0.98;
+        b = lastb*0.98;
+    }
+    
+    lasta = a;
+    lastb = b;
+    if (Math.abs(a)<=0.01 && Math.abs(b)<=0.01) {
+        return ;
+    }
+    
+    sineCosine(a,b,0);
+
+    for(var i=0;i<mList.length;i++){
+        
+         //绕x轴旋转的坐标变换
+        var x1 = mList[i].x;
+        var y1 = mList[i].y*ca - mList[i].z*sa;
+        var z1 = mList[i].y*sa + mList[i].z*ca;
+
+        //绕y轴旋转
+        var x2 = x1*cb + z1*sb;
+        var y2 = y1;
+        var z2 = (-x1)*sb + z1*cb;
+
+        //绕z轴旋转
+        var x3 = x2*cc - y2*sc;
+        var y3 = x2*sc + y2*cc;
+        var z3 = z2;
+
+        mList[i].x = x3;
+        mList[i].y = y3;
+        mList[i].z = z3;
+
+        var per = 300/(300+z3);
+        mList[i].scale = per;
+        mList[i].alpha = per;
+    }
+    setPosition();
+    depthSort();
+}
+
+//设置此时的位置
+function setPosition(){
+    var len = mList.length;
+    for(var i=0;i<len;i++){
+        mA[i].style.left = mDiv.offsetWidth/2+mList[i].x - mList[i].offsetWidth/2+'px';//计算left
+        mA[i].style.top = mDiv.offsetHeight/2-mList[i].y - mList[i].offsetHeight/2+'px';//计算top,为什么这里是减去y呢，因为默认屏幕左上角为原点，往下top越大，而我的直角坐标系y轴的箭头是向上的
+        mA[i].style.fontSize = Math.ceil(mList[i].scale*10+8) + 'px';
+        mA[i].style.filter="alpha(opacity="+100*mList[i].alpha+")";
+        mA[i].style.opacity = mList[i].alpha;
+    }
+    
+}
+
+//对z坐标按大小进行排序，然后设置z-index
+function depthSort(){
+    var tempA = [];
+    var len = mA.length;
+    for (var i = 0; i < len; i++) {
+        tempA.push(mA[i]);
+    }
+
+    //因为item1是一个对象，所以需要重写排序函数里面的方法，通过item.z来排序
+    tempA.sort(function(item1,item2){
+        if (item1.z<item2.z) {
+            return 1;
+        }else if(item1.z>item1.z){
+            return -1;
+        }else{
+            return 0;
+        }
+    });
+
+    for(var i=0;i<len;i++){
+        tempA[i].style.zIndex = i+1;
+    }
+
+}
+
+//初始化的函数
+function init(){
+    var theta = 0;
+    var phi = 0;
+    var tmp = [];//临时列表
+    var len = mList.length;
+
+    //建立一个碎片，这样做有助于优化性能
+    var fragment = document.createDocumentFragment();
+    for(var i=0;i<mA.length;i++){
+        tmp.push(mA[i]);
+    }
+
+    for(var i=0;i<tmp.length;i++){
+        fragment.appendChild(tmp[i]);
+    }
+    mDiv.appendChild(fragment);//把标签插入到页面中
+
+    //初始化每一个标签的位置
+    for(var i=0;i<len;i++){
+        // theta = Math.random()*(2*Math.PI);//随机得到一个角度
+        // phi = Math.random()*(2*Math.PI);
+        phi = Math.acos(-1+(2*(i+1)-1)/len);
+        theta = Math.sqrt(len*Math.PI)*phi;
+
+        mList[i].x = radius*Math.cos(theta)*Math.sin(phi);//得到x坐标
+        mList[i].y = radius*Math.sin(theta)*Math.sin(phi);//得到y坐标
+        mList[i].z = radius*Math.cos(phi);//得到z坐标
+
+        mA[i].style.left = mDiv.offsetWidth/2+mList[i].x - mList[i].offsetWidth/2+'px';//计算left
+        mA[i].style.top = mDiv.offsetHeight/2-mList[i].y - mList[i].offsetHeight/2+'px';//计算top
+    }
+}
+
+function sineCosine( a, b, c)
+{
+    sa = Math.sin(a * angle);
+    ca = Math.cos(a * angle);
+    sb = Math.sin(b * angle);
+    cb = Math.cos(b * angle);
+    sc = Math.sin(c * angle);
+    cc = Math.cos(c * angle);
+}
+</script>
+<div id="wrap">
+    <a href="" class="blue">1111</a>
+    <a href="" class="blue">222222</a>
+    <a href="" class="blue">333</a>
+    <a href="" class="yellow">444</a>
+    <a href="" class="yellow">555</a>
+    <a href="" class="yellow">6666666</a>
+    <a href="" class="yellow">777</a>
+    <a href="" class="red">888888</a>
+    <a href="" class="red">999</a>
+    <a href="" class="red">00000</a>
+    <a href="" class="blue">1111</a>
+    <a href="" class="blue">222222</a>
+    <a href="" class="blue">333</a>
+    <a href="" class="yellow">444</a>
+    <a href="" class="yellow">555</a>
+    <a href="" class="yellow">6666666</a>
+    <a href="" class="yellow">777</a>
+    <a href="" class="red">888888</a>
+    <a href="" class="red">999</a>
+    <a href="" class="red">00000</a>
+</div>
+
+</body>
+<html>
