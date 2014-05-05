@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html>
+	    <head>
+	    <meta charset="utf-8">
+	    <title>使用原生JavaScript写的响应式瀑布流插件_演示页_JS代码站</title>
+	    <style type="text/css">
+body, div, a, img {
+ margin: 0;
+ padding: 0;
+ list-style: none;
+ font: bold 12px "微软黑体";
+}
+.container {
+ position: absolute;
+ top: 0;
+}
+.imgShow {
+ position: absolute;
+ border: solid 1px #ccc;
+ padding: 10px;
+ width: 200px;
+ top: 0px;
+ left: 0px;
+ -webkit-transition: all .7s ease-out .1s;
+ -moz-transition: all .7s ease-out .1s;
+ -o-transition: all .7s ease-out .1s;
+ transition: all .7s ease-out .1s
+}
+img { width: 100%; }
+</style>
+	    </head>
+	    <body >
+<link href="/templets/skins/style/yulan.css" rel="stylesheet">
+<div id="header">
+  <div id="top">
+    <div id="warp">
+      <div class="topleft fl"> 
+          <a href="/">网站首页</a> <a href='/list-58.html' title='JS代码'>JS代码</a> <a href='/list-5.html' title='Jquery插件'>Jquery插件</a> <a href='/list-56.html' title='前端设计'>前端设计</a> <a href='/list-100.html' title='素材下载'>素材下载</a> <a href='/list-20.html' title='网页模板'>网页模板</a> <a href='/list-4.html' title='网页特效'>网页特效</ <a href='/list-59.html' title='CMS教程'>CMS教程</a> <a href='/list-81.html' title='CMS插件'>CMS插件</a> <a href='/list-57.html' title='网络编程'>网络编程</a> <a href='/list-60.html' title='电脑教程'>电脑教程</a> <a href='/list-55.html' title='站长技术'>站长技术</a> <a href='/list-54.html' title='IT互联网'>IT互联网</a>
+      </div>
+      <div class="topright fr"><a href="/">返回首页</a></div>
+    </div>
+  </div>
+</div>
+<div class="container">
+          <div class="imgShow"><a href="images/temp_img02.jpg"><img src="images/temp_img02.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img03.jpg"><img src="images/temp_img03.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img09.jpg"><img src="images/temp_img09.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img05.jpg"><img src="images/temp_img05.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img06.jpg"><img src="images/temp_img06.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img07.jpg"><img src="images/temp_img07.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img08.jpg"><img src="images/temp_img08.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img09.jpg"><img src="images/temp_img09.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img10.jpg"><img src="images/temp_img10.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img11.jpg"><img src="images/temp_img11.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img12.jpg"><img src="images/temp_img12.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img13.jpg"><img src="images/temp_img13.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img14.jpg"><img src="images/temp_img14.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img15.jpg"><img src="images/temp_img15.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img15.jpg"><img src="images/temp_img15.jpg"/></a> </div>
+        </div>
+<script type="text/javascript">
+			document.getElementsByClassName = function(className, tag, elm) {   
+        		var testClass = new RegExp("(^|\s)" + className + "(\s|$)");   
+       			var tag = tag || "*";   
+       			var elm = elm || document;   
+       			var elements = (tag == "*" && elm.all)? elm.all : elm.getElementsByTagName(tag);   
+        		var returnElements = [];   
+        		var current;   
+        		var length = elements.length;   
+        		for(var i=0; i<length; i++){   
+           			current = elements[i];   
+            		if(testClass.test(current.className)){   
+                		returnElements.push(current);   
+            		}   
+        		}   
+        		return returnElements;   
+    		}
+    			   
+			var margin = 10;
+			var boxes = document.getElementsByClassName('imgShow');
+			var con = document.getElementsByClassName('container');
+			var text = document.getElementsByTagName('h4');
+			var boxWidth = boxes[0].offsetWidth+margin;
+			function show () {
+				var columnHeight=[];
+				var bodyWidth = document.body.offsetWidth;
+				var n = parseInt(bodyWidth/boxWidth);
+				var columnNum = n==0?1:n;
+				var bodyLeft = bodyWidth>=boxWidth?bodyWidth-columnNum*boxWidth:0;
+                con[0].style.left = parseInt(bodyLeft/2)-margin/2+'px';
+				for (var i = 0,l=boxes.length; i <l ; i++) {
+					if (i<columnNum) {
+						columnHeight[i]=boxes[i].offsetHeight+margin;
+						boxes[i].style.top = 0;
+						boxes[i].style.left = i*boxWidth+margin+'px';
+					} else{
+						var innsertColumn = min(columnHeight),
+						    imgHeight = boxes[i].offsetHeight+margin;
+						boxes[i].style.top = columnHeight[innsertColumn]+'px';
+						boxes[i].style.left = innsertColumn*boxWidth+margin+'px';
+						columnHeight[innsertColumn] +=imgHeight; 
+					};
+
+				};
+			};
+            function min (heightAarry) {
+            	var minColumn = 0;
+            	var minHeight = heightAarry[minColumn];
+            	for (var i = 1,len=heightAarry.length; i < len; i++) {
+            		var temp = heightAarry[i];
+            		if (temp < minHeight) {
+            			minColumn = i;
+            			minHeight = temp;
+            		};
+            	};
+            	return minColumn;
+            }
+			window.onload = function(){show();};
+			window.onresize = function(){show();};
+		
+		</script>
+</body>
+</html>
