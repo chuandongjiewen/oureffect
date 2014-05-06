@@ -1,0 +1,160 @@
+<!DOCTYPE HTML>
+<html>
+	    <head>
+	    <meta charset="utf-8">
+	    <title>使用原生JavaScript写的响应式瀑布流插件_演示页_JS代码站</title>
+	    <style type="text/css">
+body, div, a, img {
+ margin: 0;
+ padding: 0;
+ list-style: none;
+ font: bold 12px "微软黑体";
+}
+.container {
+ position: absolute;
+ top: 20px;
+ width: 100%;
+}
+.imgShow {
+ position: absolute;
+ border: solid 1px #ccc;
+ padding: 10px;
+ width: 200px;
+ top: 0px;
+ left: 0px;
+ -webkit-transition: all .7s ease-out .1s;
+ -moz-transition: all .7s ease-out .1s;
+ -o-transition: all .7s ease-out .1s;
+ transition: all .7s ease-out .1s
+}
+img { width: 100%; }
+</style>
+	    </head>
+	    <body >
+<div id="container" class="container">
+          <div class="imgShow"><a href="images/temp_img02.jpg"><img src="images/temp_img02.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img03.jpg"><img src="images/temp_img03.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img09.jpg"><img src="images/temp_img09.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img05.jpg"><img src="images/temp_img05.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img06.jpg"><img src="images/temp_img06.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img07.jpg"><img src="images/temp_img07.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img08.jpg"><img src="images/temp_img08.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img09.jpg"><img src="images/temp_img09.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img10.jpg"><img src="images/temp_img10.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img11.jpg"><img src="images/temp_img11.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img12.jpg"><img src="images/temp_img12.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img13.jpg"><img src="images/temp_img13.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img14.jpg"><img src="images/temp_img14.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img15.jpg"><img src="images/temp_img15.jpg"/></a> </div>
+          <div class="imgShow"><a href="images/temp_img15.jpg"><img src="images/temp_img15.jpg"/></a> </div>
+</div>
+</body>
+<script type="text/javascript">
+document.getElementsByClassName = function(className, tag, elm ){
+	var regPatten = new RegExp("(^|\s)" + className + "(\s|$)");
+	var tag = tag || "*";
+	var elm = elm || document;
+	var elements = (tag == "*" && elm.all) ? elm.all : elm.getElementsByTagName(tag);
+	var returnElements = [];
+	var current;
+	var length = elements.length;
+	for(var i=0; i<length; i++){
+		current = elements[i];
+		if(regPatten.test(current.className)){
+			returnElements.push(current);
+		}
+	}
+	return returnElements;
+}
+
+function WaterFull(containerId){
+	this.container = document.getElementById(containerId);
+	this.conWidth = 0;//container宽度
+	this.boxWidth = 0;//每一个格子的宽度
+
+	this.columnNum = 1; //分为多少列
+	this.columnHeight = [];//存储从0到columnNum的高度
+	this.boxTagName = "div";
+	this.boxList = []; //所有的格子的对象
+	this.init();
+}
+
+/**
+ * 获得最小的列的index
+ */
+WaterFull.prototype.getMinHeightCol = function(){
+	var minCol = 0;
+	var minHeight = this.columnHeight[minCol];
+	for(var i=1; i<this.columnNum ; i++){
+		var tmp = this.columnHeight[i];
+		if(tmp < minHeight){
+			minCol = i;
+			minHeight = tmp;
+		}
+	}
+	return minCol;
+} 
+
+/**
+ * 初始化数据
+ */
+WaterFull.prototype.init = function(){
+	this.boxTagName = this.container.getElementsByTagName("*")[0].tagName.toLowerCase();
+	this.boxList = this.container.getElementsByTagName(this.boxTagName);
+	this.boxWidth = this.boxList[0].offsetWidth + 10;
+	this.conWidth = this.container.offsetWidth;
+	var n = parseInt(this.conWidth/this.boxWidth);
+	this.columnNum = (n > 0) ? n : 1;	
+}
+
+//计算每个格子的left和top
+WaterFull.prototype.show = function(){	
+	var len = this.boxList.length;
+	var conLeft = this.container.offsetLeft;
+	var conTop = this.container.offsetTop;
+	var marginTop = 10;
+	var marginLeft = 10;
+	for(var i=0; i<len; i++){
+		if(i<this.columnNum){
+			this.boxList[i].style.left = conLeft + marginLeft + i*this.boxWidth + 'px';
+			this.boxList[i].style.top = conTop + 'px';
+			this.columnHeight[i] = conTop + this.boxList[i].offsetHeight;
+			debug("<"+this.boxList[i].style.left + ":" + this.boxList[i].style.top);
+		}else{
+			var minColum = this.getMinHeightCol();
+			var boxHeight = this.boxList[i].offsetHeight + marginTop;
+			this.boxList[i].style.left = conLeft + marginLeft + minColum*(this.boxWidth ) + 'px';
+			this.boxList[i].style.top = this.columnHeight[minColum] + marginTop + 'px';
+			this.columnHeight[minColum] += boxHeight;
+			debug(">"+this.boxList[i].style.left + ":" + this.boxList[i].style.top);
+		}
+	}
+
+}
+
+function debug(str){
+	console.log(str);
+}
+
+window.onload = function(){
+//	var container = document.getElementById("container");
+//	debug(parseInt(container.offsetLeft));
+//	var boxTagName = container.getElementsByTagName("*");
+//	console.log(boxTagName[0].tagName.toLowerCase());
+	
+	var water = new WaterFull("container");
+	water.show();
+}
+
+window.onresize = function(){
+//	var container = document.getElementById("container");
+//	debug(parseInt(container.offsetLeft));
+//	var boxTagName = container.getElementsByTagName("*");
+//	console.log(boxTagName[0].tagName.toLowerCase());
+	
+	var water = new WaterFull("container");
+	water.show();
+}
+
+</script>
+</html>
