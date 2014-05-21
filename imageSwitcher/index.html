@@ -4,91 +4,94 @@
  -->
 <html>
 <head>
-	<meta charset="utf-8"/>
-	<script type="text/javascript" src="js/jquery.js"></script>
-	<script type="text/javascript" src="js/lib.js"></script>
-	<script type="text/javascript" src="js/effect.js"></script>
-	<title>ImageSwitcher</title>
-	<style type="text/css">
-		body{
-			margin: 0;padding: 0;
-		}
-		ul{
-			list-style: none;
-		}
-		.unable a{
-			text-decoration: none;
-			cursor: default;
-			color: #706E6E;
-			transition: color 1.5s;
-			-moz-transition: color 1.5s; /* Firefox 4 */
-			-webkit-transition: color 1.5s; /* Safari 和 Chrome */
-			-o-transition: color 1.5s;
-		}
-		.enable a{
-			color:#5A96FF;
-			cursor: pointer;
-			transition: color 1.5s;
-			-moz-transition: color 1.5s; /* Firefox 4 */
-			-webkit-transition: color 1.5s; /* Safari 和 Chrome */
-			-o-transition: color 1.5s;			
-		}
-		.enable a:hover{
-			color: #C9940D; 
-			transition: color 1.5s;
-			-moz-transition: color 1.5s; /* Firefox 4 */
-			-webkit-transition: color 1.5s; /* Safari 和 Chrome */
-			-o-transition: color 1.5s;
-		}
-		.wrap{
-			width: 100%;
-		}
-		.container{
-			width: 98%;
-			margin: 100 auto;		
-		}
-		#effect{
-			width: 1160px;
-			height: 613px;
-			position: relative;
-			overflow: hidden;			
-		}
-		.switcher{
-			left:0;
-			top: 0;
-			width: 1160px;
-			height: 613px;
-		}
-		.image{
-			position: absolute;
-		}
-		.image img{
-			left:0;
-			top: 0;
-			display: none;
-		}
-		.image img.showDiv{
-			display: block;
-		}
-		.fl{
-			float: left;
-			display: inline;
-		}
-		.fr{
-			float: right;
-			display: inline;
-		}
-		.cl:after{content: ".";display: block;height: 0px;clear: both;
-		visibility: hidden;}
-		* html .cl{height: 1%;}/*IE6*/
-		*:first-child+html .cl{min-height: 1px;}/*IE7*/
-		footer{
-			width: 100%;
-			display: block;
-			text-align: center;
-			line-height: 100px;
-		}
-	</style>
+<meta charset="utf-8"/>
+<meta name="ketwords" content="ImageSwitcher，图片播放，随机播放，图片切换，JS效果">
+<meta name="discription" content="ImageSwitcher图片随机轮播">
+<meta name="author" content="Ada Wang 汪洁文">
+<meta name="copyright" content="Ada Wang 汪洁文">
+
+<title>ImageSwitcher</title>
+<style type="text/css">
+	*{
+		margin: 0;padding: 0;
+	}
+	ul{
+		list-style: none;
+		margin-right: 10px;
+	}
+	.unable a{
+		text-decoration: none;
+		cursor: default;
+		color: #706E6E;
+		transition: color 1.5s;
+		-moz-transition: color 1.5s; /* Firefox 4 */
+		-webkit-transition: color 1.5s; /* Safari 和 Chrome */
+		-o-transition: color 1.5s;
+	}
+	.enable a{
+		color:#5A96FF;
+		cursor: pointer;
+		transition: color 1.5s;
+		-moz-transition: color 1.5s; /* Firefox 4 */
+		-webkit-transition: color 1.5s; /* Safari 和 Chrome */
+		-o-transition: color 1.5s;			
+	}
+	.enable a:hover{
+		color: #C9940D; 
+		transition: color 1.5s;
+		-moz-transition: color 1.5s; /* Firefox 4 */
+		-webkit-transition: color 1.5s; /* Safari 和 Chrome */
+		-o-transition: color 1.5s;
+	}
+	.wrap{
+		width: 100%;
+	}
+	.container{
+		width: 96%;
+		margin: 100 auto;		
+	}
+	#effect{
+		width: 800px;
+		height: 460px;
+		position: relative;
+		overflow: hidden;			
+	}
+	.switcher{
+		left:0;
+		top: 0;
+		width: 800px;
+		height: 460px;
+	}
+	.image{
+		position: absolute;
+	}
+	.image img{
+		left:0;
+		top: 0;
+		display: none;
+	}
+	.image img.showDiv{
+		display: block;
+	}
+	.fl{
+		float: left;
+		display: inline;
+	}
+	.fr{
+		float: right;
+		display: inline;
+	}
+	.cl:after{content: ".";display: block;height: 0px;clear: both;
+	visibility: hidden;}
+	* html .cl{height: 1%;}/*IE6*/
+	*:first-child+html .cl{min-height: 1px;}/*IE7*/
+	footer{
+		width: 100%;
+		display: block;
+		text-align: center;
+		line-height: 100px;
+	}
+</style>
 </head>
 <body>
 
@@ -108,7 +111,7 @@
 			<li class="unable"><a href="#circleOutLeft">circleOutLeft</a></li>
 			<li class="unable"><a href="#circleOutRight">circleOutRight</a></li>	
 		</ul>
-		<div id="effect" class="fr">
+		<div id="effect" class="fl">
 			<div class="image">
 				<img src="images/3.jpg" id="test" class="showDiv">
 				<img src="images/2.jpg" id="test" >
@@ -124,5 +127,8 @@
 <footer>
 	Copyright 20140410 by Ada Wang/汪洁文	
 </footer>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/lib.js"></script>
+<script type="text/javascript" src="js/effect.js"></script>
 </body>
 </html>

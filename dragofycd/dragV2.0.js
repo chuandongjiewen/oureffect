@@ -29,6 +29,8 @@
 		return this;//返回jquery对象
 	}
 
+	
+
 	//定义的drag类
 	var ClassDragSort = function(i,cont){
 		this.draggedItem = null;

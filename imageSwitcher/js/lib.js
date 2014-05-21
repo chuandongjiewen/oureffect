@@ -76,13 +76,10 @@
 			if(this.opts.moveStyle=='random'){
 				var num = this.random(0,len);
 				moveStyle = moveStyles[num];
-				debug('moveStyles:'+moveStyle);
 			}
 			if(loop==false){
-				debug('loop==false');
 				this.doplay(moveStyle,callback);///////////////问题在这里~
 			}else{
-				debug('loop==true');
 				if(this.timer) {
 					clearTimeout(this.timer);
 					this.timer = null;
@@ -510,7 +507,6 @@
 			this.obj.append(fragment);
 			for(var i=0;i<row;i++){//几行就开几个定时器
 				if(i==row-1){//最后一行
-					debug(3);
 					this.doMove(list,i,0,i+1,col,initLeft,(-1)*initTop,function(){		
 						_this.deleteBlock(_this.obj);
 						if(callback) callback();	
@@ -649,7 +645,7 @@ function debug(infor){
 				////////////////it is very important!
 				if(Math.abs(_this.oTarget[attr]-oTmp[attr])>Math.abs(_this.oTarget[attr]*0.001)){				
 					bStop = false;
-					debug(5);/////////////////////////////NEED
+					//debug(5);/////////////////////////////NEED
 				}	
 				oSpeed[attr] = (_this.oTarget[attr] - oTmp[attr])/_this.coefficient;
 				oSpeed[attr] = oSpeed[attr] > 0 ? Math.ceil(oSpeed[attr]):Math.floor(oSpeed[attr]);		
@@ -748,7 +744,7 @@ function debug(infor){
 				//以前这里有问题，一直执行这个，系统一直认为这个大于1，因为oTmp[attr]
 				if(Math.abs(_this.oTarget[attr]-oTmp[attr])>Math.abs(_this.oTarget[attr]*0.01)){
 					bStop = false;
-					debug(6);//////////////NEED!
+					//debug(6);//////////////NEED!
 				}	
 				oSpeed[attr]+=(_this.oTarget[attr]-oTmp[attr])/_this.coefficient;
 				oSpeed[attr]*=0.8;//不乘以这个的话，运动不会停，速度会在正的最大值和负的最大值间变化			

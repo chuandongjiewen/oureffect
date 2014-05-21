@@ -7,7 +7,7 @@ window.onload = function(){
 		// 'row':4,
 		// 'col':6,
 		// 'moveType':'bufferMove',
-		'loopPlay':false,
+		'loopPlay':true,
 		'speed':40,
 		'moveStyle': "random"//random,blockIn,blockOut,closeIn,closeOut,crossIn,crossOut,circleOut
 	});
