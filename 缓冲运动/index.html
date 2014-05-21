@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<title></title>
+<meta charset="utf-8" />
+<script src="common.js" type="text/javascript"></script>
+<style type="text/css" >
+	#div1{
+		width: 200px;
+		height: 200px;
+		background:#00ff00;
+	}
+	#div2{
+		width: 400px;
+		height: 200px;
+		background:#0000ff;
+	}
+	#div3{
+		width: 200px;
+		height: 200px;
+		background:#ff00ff;
+	}
+</style>
+
+</head>
+<body>
+	<script type="text/javascript">
+	window.onload=function(){
+		var div1 = document.getElementById('div1');
+		var div2 = document.getElementById('div2');
+		div1.onmouseover=function(){
+			//startMove(div1,'width',400);
+			startMove(div1,{width:200,height:300,opacity:20},
+			function(){
+				startMove(div1,{width:400,height:300,opacity:10});
+			});
+		}
+		div1.onmouseout=function(){
+			//startMove(div1,'width',200);
+			startMove(div1,{width:200,height:300,opacity:20},
+			function(){
+				startMove(div1,{width:200,height:200,opacity:100});
+			});		
+		}
+		// div3.onmouseover=function(){
+		// 	//startMove(div1,'width',400);
+		// 	startMove(div3,'width',400);
+		// 	startMove(div3,'font-size',48);
+		// }
+		// div3.onmouseout=function(){
+		// 	//startMove(div1,'width',200);
+		// 	startMove(div3,'width',200);
+		// 	startMove(div3,'font-size',12);
+			
+
+		// }
+		// div2.onmouseover=function(){
+		// 	startMove(div2,'width',600);
+		// }
+		// div2.onmouseout=function(){
+		// 	startMove(div2,'width',400);
+		// }
+	}
+
+</script>
+<div class="main-container">
+  <header>
+  	<h1>Try MY Header.</h1>
+  </header>
+  <section>
+  </section>
+</div>
+
+<!-- 
+<section id="div3">
+	尹川东大傻瓜
+</section> -->
+<section id="div1">
+	
+</section>
+<!-- <section id="div2">
+	
+</section> -->
+ <footer>
+ 	<h1>Try MY Footer.</h1>
+    <p class="tagline_left">Copyright &copy; 2013 - All Rights Reserved - <a href="#">Ada Wang</a></p>
+</footer>
+</body>
+</html>
