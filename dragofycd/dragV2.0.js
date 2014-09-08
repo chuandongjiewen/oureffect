@@ -25,7 +25,6 @@
 			newList.init();
 			lists.push(newList);
 		});
-
 		return this;//返回jquery对象
 	}
 
